@@ -142,6 +142,13 @@ body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;fon
 .appt-action-btn{width:24px;height:24px;border-radius:4px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .appt-action-btn.del{background:var(--red-dim);color:var(--red);}
 .appt-action-btn.del:hover{background:var(--red);color:#fff}
+.appt-action-btn.cancel-btn{background:rgba(255,179,64,0.12);color:var(--amber);}
+.appt-action-btn.cancel-btn:hover{background:var(--amber);color:var(--char)}
+.cancelled-card{background:var(--char3);border-radius:var(--r-sm);border:1px solid var(--red);padding:12px 14px;opacity:0.88;}
+.cancelled-card .appt-name{text-decoration:line-through;color:var(--ink3)}
+.cancel-reason-txt{font-size:11px;color:var(--red);font-style:italic;margin-top:4px;padding:5px 8px;background:var(--red-dim);border-radius:4px;display:inline-block}
+.cancelled-strip{background:var(--red-dim);border:1px solid var(--red);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--red);display:flex;align-items:center;gap:8px;}
+.action-btn-cancel{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber)}
 .appt-action-btn.cal{background:var(--blue-dim);color:var(--blue);}
 .appt-action-btn.cal:hover{background:var(--blue);color:#fff}
 .appt-action-btn.sms-btn{background:var(--green-dim);color:var(--green);}
@@ -304,13 +311,17 @@ body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;fon
 
     <div class="form-row-2">
       <div class="form-row" style="margin-bottom:0">
-        <label class="form-label">Date</label>
-        <input class="form-input" id="m-date" type="date">
+        <label class="form-label">Booked on (today)</label>
+        <input class="form-input" id="m-booked-date" type="date" style="color:var(--ink3)" readonly>
       </div>
       <div class="form-row" style="margin-bottom:0">
-        <label class="form-label">Time</label>
-        <input class="form-input" id="m-time" type="time">
+        <label class="form-label">Appointment due date</label>
+        <input class="form-input" id="m-date" type="date">
       </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Time</label>
+      <input class="form-input" id="m-time" type="time">
     </div>
 
     <div class="form-row" style="margin-top:12px">
@@ -430,6 +441,7 @@ body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;fon
     <button class="tab on" onclick="switchTab('daily',this)">Daily</button>
     <button class="tab" onclick="switchTab('weekly',this)">Weekly</button>
     <button class="tab" onclick="switchTab('appointments',this)">Appointments</button>
+    <button class="tab" onclick="switchTab('cancelled',this)">Cancelled</button>
     <button class="tab" onclick="switchTab('milestones',this)">Milestones</button>
     <button class="tab" onclick="switchTab('intel',this)">Intel</button>
   </div>
@@ -450,6 +462,7 @@ body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;fon
       <div class="hstat"><div class="hstat-val" id="h-reports" style="color:#f59e0b">0</div><div class="hstat-lbl">Reports</div></div>
       <div class="hstat"><div class="hstat-val a" id="h-appts-booked">0</div><div class="hstat-lbl">Appts Booked</div></div>
       <div class="hstat"><div class="hstat-val g" id="h-appts-done">0</div><div class="hstat-lbl">Appts Done</div></div>
+      <div class="hstat"><div class="hstat-val" style="color:var(--red)" id="h-appts-cancelled">0</div><div class="hstat-lbl">Cancelled</div></div>
       <div class="hstat"><div class="hstat-val" id="h-appraisals">0</div><div class="hstat-lbl">Appraisals</div></div>
       <div class="hstat"><div class="hstat-val" id="h-listings">0</div><div class="hstat-lbl">Listings</div></div>
     </div>
@@ -568,12 +581,14 @@ body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;fon
     </div>
   </div>
 
-  <!-- APPOINTMENT PANEL — DAILY -->
-  <div class="appt-panel mb">
+  <!-- ═══ DAILY BOOKING CENTRE ═══ -->
+
+  <!-- Section A: Properties booked today -->
+  <div class="appt-panel mb" id="booked-panel">
     <div class="appt-header">
       <div class="appt-title-row">
         <div class="sec-dot p"></div>
-        <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3)">Today's Appointments</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3)">Properties Booked Today</span>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <div class="appt-counters">
@@ -587,14 +602,51 @@ body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;fon
           </div>
           <div class="appt-counter">
             <div class="appt-counter-val ratio" id="d-appt-ratio">0%</div>
-            <div class="appt-counter-lbl">Complete rate</div>
+            <div class="appt-counter-lbl">Rate</div>
           </div>
         </div>
         <button class="appt-add-btn" onclick="openModal()">+ Book Appointment</button>
       </div>
     </div>
+    <!-- Alert banner — shows when appointments are booked -->
+    <div id="booking-alert" style="display:none;background:var(--purple-dim);border:1px solid var(--purple);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">📌</span>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--purple)">You have appointments booked today</div>
+        <div id="booking-alert-text" style="font-size:11px;color:var(--ink3);margin-top:1px"></div>
+      </div>
+    </div>
     <div class="appt-list" id="daily-appt-list">
-      <div class="appt-empty">No appointments booked yet today.<br>Click <strong>+ Book Appointment</strong> to add one.</div>
+      <div class="appt-empty">No properties booked yet today.<br>Click <strong>+ Book Appointment</strong> to add one.</div>
+    </div>
+  </div>
+
+  <!-- Section B: Appraisals to complete today -->
+  <div class="card mb" id="appraisals-due-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="sec-dot g"></div>
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3)">Appraisals &amp; Listings To Complete Today</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="background:var(--char3);border-radius:var(--r-sm);padding:5px 12px;border:1px solid var(--char4);text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--amber);line-height:1" id="due-pending-count">0</div>
+          <div style="font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em">Pending</div>
+        </div>
+        <div style="background:var(--char3);border-radius:var(--r-sm);padding:5px 12px;border:1px solid var(--char4);text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green);line-height:1" id="due-done-count">0</div>
+          <div style="font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em">Done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming from other days reminder -->
+    <div id="upcoming-reminder" style="display:none;background:var(--amber-dim);border:1px solid var(--amber);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--amber)">
+      <strong>⏰ Upcoming this week:</strong> <span id="upcoming-text"></span>
+    </div>
+
+    <div id="due-appt-list" style="display:flex;flex-direction:column;gap:6px;">
+      <div class="appt-empty" style="padding:16px;">No appraisals or listing presentations scheduled for today.</div>
     </div>
   </div>
 
@@ -778,6 +830,90 @@ body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;fon
   </div>
 </div>
 
+<!-- CANCEL MODAL -->
+<div class="modal-overlay" id="cancel-modal">
+  <div class="modal" style="border-color:var(--red);max-width:460px">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--red);border-radius:12px 12px 0 0"></div>
+    <button class="modal-close" onclick="closeCancelModal()">✕</button>
+    <div class="modal-title" style="color:var(--red)">❌ Cancel Appointment</div>
+    <div id="cancel-appt-name" style="font-size:13px;color:var(--ink2);margin-bottom:14px;padding:8px 10px;background:var(--char3);border-radius:var(--r-sm)"></div>
+    <div class="form-row">
+      <label class="form-label">Reason for cancellation</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="cancel-reason-opts">
+        <button class="outcome-opt" onclick="selectCancelReason('Vendor changed mind',this)">Vendor changed mind</button>
+        <button class="outcome-opt" onclick="selectCancelReason('Rescheduled',this)">Rescheduled</button>
+        <button class="outcome-opt" onclick="selectCancelReason('Not ready to sell',this)">Not ready to sell</button>
+        <button class="outcome-opt" onclick="selectCancelReason('Went with another agent',this)">Went with another agent</button>
+        <button class="outcome-opt" onclick="selectCancelReason('No answer / no show',this)">No answer / no show</button>
+        <button class="outcome-opt" onclick="selectCancelReason('Other',this)">Other</button>
+      </div>
+      <input class="form-input" id="cancel-reason-input" placeholder="Or type a custom reason..." oninput="cancelReasonCustom(this.value)" style="margin-top:4px">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Additional notes</label>
+      <textarea class="form-textarea" id="cancel-notes" placeholder="Any extra context — follow up needed? Reschedule planned?..." rows="3"></textarea>
+    </div>
+    <div style="background:var(--amber-dim);border-radius:var(--r-sm);padding:8px 12px;font-size:11px;color:var(--amber);margin-bottom:14px">
+      ⚠️ The appointment record will be moved to the Cancelled tab. It will not appear in your active appointments but is preserved for your records.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCancelModal()">Keep appointment</button>
+      <button class="btn-save" onclick="confirmCancel()" style="background:var(--red)">Confirm cancellation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ CANCELLED TAB ═══════════════════════ -->
+<div class="page" id="page-cancelled">
+  <div class="hero" style="border-color:var(--red)">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent);border-radius:var(--r) var(--r) 0 0"></div>
+    <div>
+      <div class="hero-title" style="color:var(--red)">Cancelled Appointments</div>
+      <div class="hero-sub">Full history of every cancelled appointment — reason, date, and context</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val" style="color:var(--red)" id="can-total">0</div><div class="hstat-lbl">Total cancelled</div></div>
+      <div class="hstat"><div class="hstat-val a" id="can-this-month">0</div><div class="hstat-lbl">This month</div></div>
+      <div class="hstat"><div class="hstat-val" style="color:var(--ink2)" id="can-top-reason">—</div><div class="hstat-lbl">Top reason</div></div>
+    </div>
+  </div>
+
+  <div class="g2 mb">
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot" style="background:var(--red)"></div>Filter cancellations</div>
+      <select class="form-select" id="can-filter-reason" onchange="renderCancelledTab()" style="width:100%;margin-bottom:8px">
+        <option value="all">All reasons</option>
+        <option value="Vendor changed mind">Vendor changed mind</option>
+        <option value="Rescheduled">Rescheduled</option>
+        <option value="Not ready to sell">Not ready to sell</option>
+        <option value="Went with another agent">Went with another agent</option>
+        <option value="No answer / no show">No answer / no show</option>
+        <option value="Other">Other</option>
+      </select>
+      <select class="form-select" id="can-filter-cat" onchange="renderCancelledTab()">
+        <option value="all">All types (MA + LA)</option>
+        <option value="MA">MA — Market Appraisals only</option>
+        <option value="LA">LA — Listing Appointments only</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot g"></div>Cancellation reasons breakdown</div>
+      <div id="cancel-reason-bars"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-head" style="margin-bottom:12px">
+      <div class="sec-dot" style="background:var(--red)"></div>
+      All cancelled appointments
+      <span id="can-count-label" style="font-weight:400;color:var(--ink3);text-transform:none;letter-spacing:0;font-size:11px;margin-left:4px"></span>
+    </div>
+    <div id="cancelled-list" style="display:flex;flex-direction:column;gap:8px;max-height:600px;overflow-y:auto">
+      <div class="appt-empty">No cancelled appointments yet.</div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════ MILESTONES ═══════════════════════ -->
 <div class="page" id="page-milestones">
   <div class="hero">
@@ -932,6 +1068,7 @@ function switchTab(name, btn){
   if(name==='weekly') renderWeekly();
   if(name==='milestones') renderMilestones();
   if(name==='appointments') renderApptTab();
+  if(name==='cancelled') renderCancelledTab();
 }
 
 // ═══════════════════════ DATE NAV ═══════════════════════
@@ -976,7 +1113,8 @@ function openModal(){
   document.getElementById('m-name').value='';
   document.getElementById('m-phone').value='';
   document.getElementById('m-type').value='appraisal';
-  document.getElementById('m-date').value = dateKey(curDate);
+  document.getElementById('m-booked-date').value = dateKey(new Date()); // always today, readonly
+  document.getElementById('m-date').value = dateKey(curDate); // due date, editable
   document.getElementById('m-time').value='';
   document.getElementById('m-address').value='';
   document.getElementById('m-notes').value='';
@@ -991,10 +1129,12 @@ function saveAppt(){
   const name = document.getElementById('m-name').value.trim();
   if(!name){ document.getElementById('m-name').focus(); return; }
   const appts = getAppts();
-  const apptDate = document.getElementById('m-date').value || dateKey(curDate);
+  const bookedDate = document.getElementById('m-booked-date').value || dateKey(new Date());
+  const dueDate = document.getElementById('m-date').value || dateKey(curDate);
   const appt = {
     id: editingApptId || uid(),
-    date: apptDate,
+    bookedDate,          // date the appointment was created/booked — never changes
+    date: dueDate,       // date the appointment is due to happen — used for "due today"
     cat: selectedCat,
     name,
     phone: document.getElementById('m-phone').value.trim(),
@@ -1015,6 +1155,7 @@ function saveAppt(){
       appt.outcome=appts[idx].outcome;
       appt.outcomeNotes=appts[idx].outcomeNotes;
       appt.followupDate=appts[idx].followupDate;
+      appt.bookedDate=appts[idx].bookedDate; // preserve original booked date on edit
       appts[idx]=appt;
     }
   } else {
@@ -1022,8 +1163,8 @@ function saveAppt(){
   }
   saveAppts(appts);
   closeModal();
-  // Update curDate to match the appointment date for rendering
-  curDate = new Date(apptDate + 'T12:00:00');
+  // Navigate to the booked date so it shows in history
+  curDate = new Date(bookedDate + 'T12:00:00');
   renderDaily();
   if(document.getElementById('page-appointments').classList.contains('on')) renderApptTab();
 }
@@ -1138,7 +1279,8 @@ function editAppt(id){
   document.getElementById('m-name').value = a.name;
   document.getElementById('m-phone').value = a.phone||'';
   document.getElementById('m-type').value = a.type;
-  document.getElementById('m-date').value = a.date||dateKey(curDate);
+  document.getElementById('m-booked-date').value = a.bookedDate || a.date || dateKey(new Date()); // readonly
+  document.getElementById('m-date').value = a.date||dateKey(curDate); // due date editable
   document.getElementById('m-time').value = a.time||'';
   document.getElementById('m-address').value = a.address||'';
   document.getElementById('m-notes').value = a.notes||'';
@@ -1310,7 +1452,213 @@ Urban Real Estate`;
   setTimeout(refreshQr, 50);
 }
 
-function buildApptCard(a, showDate=false){
+// ═══════════════════════ CANCELLATIONS ═══════════════════════
+let cancellingApptId = null;
+let selectedCancelReason = '';
+
+function getCancelled(){
+  const s = load();
+  return s['cancelled_appts'] || [];
+}
+function saveCancelled(arr){
+  const s = load();
+  s['cancelled_appts'] = arr;
+  save(s);
+}
+
+function openCancelModal(id){
+  const a = getAppts().find(x=>x.id===id);
+  if(!a) return;
+  cancellingApptId = id;
+  selectedCancelReason = '';
+  document.getElementById('cancel-appt-name').textContent = `${a.cat||'MA'} — ${a.name}${a.address?' · '+a.address:''}`;
+  document.getElementById('cancel-notes').value = '';
+  document.getElementById('cancel-reason-input').value = '';
+  // Reset reason buttons
+  document.querySelectorAll('#cancel-reason-opts .outcome-opt').forEach(b=>b.className='outcome-opt');
+  document.getElementById('cancel-modal').classList.add('open');
+}
+function closeCancelModal(){
+  document.getElementById('cancel-modal').classList.remove('open');
+  cancellingApptId = null;
+  selectedCancelReason = '';
+}
+
+function selectCancelReason(reason, el){
+  selectedCancelReason = reason;
+  document.querySelectorAll('#cancel-reason-opts .outcome-opt').forEach(b=>b.className='outcome-opt');
+  el.className = 'outcome-opt sel-lost';
+  document.getElementById('cancel-reason-input').value = '';
+}
+function cancelReasonCustom(val){
+  selectedCancelReason = val;
+  document.querySelectorAll('#cancel-reason-opts .outcome-opt').forEach(b=>b.className='outcome-opt');
+}
+
+function confirmCancel(){
+  if(!cancellingApptId) return;
+  const reason = selectedCancelReason || document.getElementById('cancel-reason-input').value.trim();
+  if(!reason){ document.getElementById('cancel-reason-input').focus(); document.getElementById('cancel-reason-input').placeholder = 'Please select or type a reason'; return; }
+
+  const appts = getAppts();
+  const a = appts.find(x=>x.id===cancellingApptId);
+  if(!a) return;
+
+  // Build cancelled record
+  const cancelled = {
+    ...a,
+    cancelledDate: dateKey(new Date()),
+    cancelledReason: reason,
+    cancelledNotes: document.getElementById('cancel-notes').value.trim(),
+  };
+
+  // Save to cancelled store
+  const cancelledArr = getCancelled();
+  cancelledArr.push(cancelled);
+  saveCancelled(cancelledArr);
+
+  // Remove from active appointments
+  const updated = appts.filter(x=>x.id!==cancellingApptId);
+  saveAppts(updated);
+
+  closeCancelModal();
+
+  // Remove card from DOM immediately
+  const card = document.getElementById('appt-'+cancellingApptId);
+  if(card) card.remove();
+
+  renderDailyAppts();
+  updateHeroStats(load()[dateKey(curDate)]||{});
+  if(document.getElementById('page-appointments').classList.contains('on')) renderApptTab();
+
+  // Update cancelled hero stat
+  updateCancelledHeroStat();
+}
+
+function updateCancelledHeroStat(){
+  const key = dateKey(curDate);
+  const todayCancelled = getCancelled().filter(a=>a.cancelledDate===key).length;
+  const el = document.getElementById('h-appts-cancelled');
+  if(el) el.textContent = todayCancelled;
+}
+
+function renderCancelledTab(){
+  const all = getCancelled();
+  const reasonF = document.getElementById('can-filter-reason')?.value || 'all';
+  const catF = document.getElementById('can-filter-cat')?.value || 'all';
+
+  let filtered = all;
+  if(reasonF !== 'all') filtered = filtered.filter(a=>a.cancelledReason===reasonF);
+  if(catF !== 'all') filtered = filtered.filter(a=>(a.cat||'MA')===catF);
+  filtered.sort((a,b)=>b.cancelledDate>a.cancelledDate?1:-1);
+
+  // Stats
+  document.getElementById('can-total').textContent = all.length;
+  const thisMonth = new Date().toISOString().slice(0,7);
+  document.getElementById('can-this-month').textContent = all.filter(a=>a.cancelledDate&&a.cancelledDate.startsWith(thisMonth)).length;
+
+  // Top reason
+  const reasonCounts = {};
+  all.forEach(a=>{ if(a.cancelledReason) reasonCounts[a.cancelledReason]=(reasonCounts[a.cancelledReason]||0)+1; });
+  const topReason = Object.entries(reasonCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topEl = document.getElementById('can-top-reason');
+  if(topEl) topEl.textContent = topReason ? topReason[0].split(' ').slice(0,2).join(' ') : '—';
+
+  // Reason breakdown bars
+  const reasons = ['Vendor changed mind','Rescheduled','Not ready to sell','Went with another agent','No answer / no show','Other'];
+  const barsEl = document.getElementById('cancel-reason-bars');
+  if(barsEl){
+    barsEl.innerHTML = reasons.map(r=>{
+      const v = reasonCounts[r]||0;
+      const pct = all.length>0?Math.min(100,Math.round((v/all.length)*100)):0;
+      return `<div class="prog-row"><span class="prog-lbl" style="width:170px;font-size:11px">${r}</span><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:var(--red)"></div></div><span class="prog-count">${v}/${all.length}</span></div>`;
+    }).join('');
+  }
+
+  // Count label
+  const lbl = document.getElementById('can-count-label');
+  if(lbl) lbl.textContent = `— showing ${filtered.length} of ${all.length}`;
+
+  // List
+  const listEl = document.getElementById('cancelled-list');
+  if(!listEl) return;
+  if(!filtered.length){
+    listEl.innerHTML = '<div class="appt-empty">No cancelled appointments match the current filter.</div>';
+    return;
+  }
+  listEl.innerHTML = filtered.map(a=>{
+    const cat = a.cat||'MA';
+    const catCol = cat==='LA'?'var(--green)':'var(--amber)';
+    const bookedStr = a.bookedDate ? `Booked: ${a.bookedDate}` : `Created: ${a.date}`;
+    const dueStr = a.date ? ` · Due: ${a.date}` : '';
+    const timeStr = a.time ? ` · ${fmtTime12(a.time)}` : '';
+    const cancelledOn = a.cancelledDate || '—';
+    return `
+    <div class="cancelled-card">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${catCol};line-height:1;flex-shrink:0;opacity:0.6">${cat}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+            <span class="appt-name" style="text-decoration:line-through;color:var(--ink3);font-size:13px;font-weight:600">${a.name}</span>
+            <span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--red-dim);color:var(--red);font-family:'DM Mono',monospace">CANCELLED</span>
+          </div>
+          ${a.address?`<div style="font-size:10px;color:var(--ink3)">📍 ${a.address}</div>`:''}
+          ${a.phone?`<div style="font-size:10px;color:var(--ink3);font-family:'DM Mono',monospace">📞 ${a.phone}</div>`:''}
+          <div style="font-size:10px;color:var(--ink3);margin-top:3px">${bookedStr}${dueStr}${timeStr}</div>
+          <div style="font-size:10px;color:var(--ink2);margin-top:2px">❌ Cancelled on: <strong>${cancelledOn}</strong></div>
+          <div class="cancel-reason-txt">Reason: ${a.cancelledReason||'Not specified'}</div>
+          ${a.cancelledNotes?`<div style="font-size:11px;color:var(--ink3);margin-top:4px;font-style:italic">${a.cancelledNotes}</div>`:''}
+          ${a.notes?`<div style="font-size:11px;color:var(--ink3);margin-top:4px;border-top:1px solid var(--char4);padding-top:4px">Original notes: ${a.notes}</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+          <button onclick="restoreAppt('${a.id}')" style="background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-size:10px;font-weight:600;padding:5px 8px;border-radius:var(--r-sm);cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">↩ Restore</button>
+          <button onclick="deleteCancelled('${a.id}')" style="background:var(--red-dim);border:1px solid var(--red);color:var(--red);font-size:10px;font-weight:600;padding:5px 8px;border-radius:var(--r-sm);cursor:pointer;font-family:'Outfit',sans-serif">Remove</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function restoreAppt(id){
+  const all = getCancelled();
+  const a = all.find(x=>x.id===id);
+  if(!a) return;
+  // Remove cancel metadata and put back into active
+  const restored = {...a};
+  delete restored.cancelledDate;
+  delete restored.cancelledReason;
+  delete restored.cancelledNotes;
+  restored.completed = false;
+  const appts = getAppts();
+  appts.push(restored);
+  saveAppts(appts);
+  saveCancelled(all.filter(x=>x.id!==id));
+  renderCancelledTab();
+  renderDailyAppts();
+}
+
+function deleteCancelled(id){
+  const overlay = document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  overlay.innerHTML=`<div style="background:#22242b;border:1px solid var(--red);border-radius:12px;padding:24px;max-width:340px;width:92%">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--red);margin-bottom:8px">Remove permanently?</div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:20px;line-height:1.5">This will permanently delete the cancelled record. It cannot be undone.</div>
+    <div style="display:flex;gap:8px">
+      <button id="dc-keep" style="flex:1;background:var(--char3);border:1px solid var(--char4);color:var(--ink2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:10px;border-radius:6px;cursor:pointer">Keep it</button>
+      <button id="dc-del" style="flex:1;background:var(--red);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;padding:10px;border-radius:6px;cursor:pointer">Delete</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('dc-keep').onclick=()=>document.body.removeChild(overlay);
+  overlay.onclick=(e)=>{if(e.target===overlay)document.body.removeChild(overlay);};
+  document.getElementById('dc-del').onclick=()=>{
+    document.body.removeChild(overlay);
+    saveCancelled(getCancelled().filter(x=>x.id!==id));
+    renderCancelledTab();
+  };
+}
+
+function buildApptCard(a, showDate=false, extraBadge=''){
   const cat = a.cat || 'MA';
   const catPill = `<span class="appt-cat-pill appt-cat-${cat}">${cat}</span>`;
   const timeStr = a.time ? `<span class="appt-pill time">${a.time}</span>` : '';
@@ -1339,9 +1687,7 @@ function buildApptCard(a, showDate=false){
   }
   // Format time to 12-hour
   if(a.time){
-    const [hh,mm] = a.time.split(':');
-    const h = parseInt(hh);
-    apptTimeStr = `${h > 12 ? h-12 : h || 12}:${mm}${h >= 12 ? 'pm' : 'am'}`;
+    apptTimeStr = fmtTime12(a.time);
   }
 
   return `
@@ -1355,7 +1701,7 @@ function buildApptCard(a, showDate=false){
         <span class="appt-name">${a.name}</span>
       </div>
       ${a.address?`<div style="font-size:10px;color:var(--ink3);margin-bottom:2px">📍 ${a.address}</div>`:''}
-      <div class="appt-meta">${typeStr}${timeStr}${phoneStr}${dateStr}${outcomeStr}</div>
+      <div class="appt-meta">${typeStr}${timeStr}${phoneStr}${dateStr}${outcomeStr}${extraBadge}</div>
       ${noteStr}${outcomeNoteStr}${followupStr}
       <div class="action-bar">
         <a href="${calUrl}" target="_blank" class="action-btn-wide action-btn-cal" title="Open in Google Calendar">
@@ -1363,6 +1709,9 @@ function buildApptCard(a, showDate=false){
         </a>
         <button class="action-btn-wide action-btn-sms" onclick="sendThankYouSMS('${phoneEsc}','${nameEsc}','${apptDay}','${apptDateStr}','${apptTimeStr}')" title="Send thank you SMS">
           💬 Send Thank You SMS
+        </button>
+        <button class="action-btn-wide action-btn-cancel" onclick="openCancelModal('${a.id}')" title="Mark as cancelled">
+          ❌ Cancel Appointment
         </button>
       </div>
     </div>
@@ -1375,24 +1724,115 @@ function buildApptCard(a, showDate=false){
 
 function renderDailyAppts(){
   const key = dateKey(curDate);
-  const dayAppts = getAppts().filter(a=>a.date===key).sort((a,b)=>a.time>b.time?1:-1);
-  const booked = dayAppts.length;
-  const done = dayAppts.filter(a=>a.completed).length;
-  const ratio = booked>0?Math.round((done/booked)*100):0;
+  const allAppts = getAppts();
 
-  document.getElementById('d-appt-booked').textContent = booked;
+  // Section A: appointments BOOKED on this date (history record)
+  const bookedToday = allAppts.filter(a=>(a.bookedDate||a.date)===key).sort((a,b)=>a.time>b.time?1:-1);
+
+  // Section B: appointments DUE on this date (what needs doing today)
+  const dueToday = allAppts.filter(a=>a.date===key).sort((a,b)=>a.time>b.time?1:-1);
+
+  // ── Stats use DUE today ──
+  const booked = dueToday.length;
+  const done = dueToday.filter(a=>a.completed).length;
+  const ratio = booked>0?Math.round((done/booked)*100):0;
+  document.getElementById('d-appt-booked').textContent = bookedToday.length; // booked count = booked on this day
   document.getElementById('d-appt-done').textContent = done;
   document.getElementById('d-appt-ratio').textContent = ratio+'%';
-  // Hero
-  document.getElementById('h-appts-booked').textContent = booked;
+  document.getElementById('h-appts-booked').textContent = bookedToday.length;
   document.getElementById('h-appts-done').textContent = done;
 
-  const el = document.getElementById('daily-appt-list');
-  if(!dayAppts.length){
-    el.innerHTML = '<div class="appt-empty">No appointments booked yet today.<br>Click <strong>+ Book Appointment</strong> to add one.</div>';
-    return;
+  // ── Section A: Properties booked today ──
+  const alertEl = document.getElementById('booking-alert');
+  const listEl = document.getElementById('daily-appt-list');
+  if(!bookedToday.length){
+    alertEl.style.display = 'none';
+    listEl.innerHTML = '<div class="appt-empty">No properties booked on this date.<br>Click <strong>+ Book Appointment</strong> to add one.</div>';
+  } else {
+    alertEl.style.display = 'flex';
+    const apptSummary = bookedToday.map(a=>{
+      const dueStr = a.date !== (a.bookedDate||a.date) ? ` → due ${a.date}` : (a.time ? ` at ${fmtTime12(a.time)}` : '');
+      return `${a.cat||'MA'} — ${a.name}${dueStr}`;
+    }).join(' · ');
+    document.getElementById('booking-alert-text').textContent = apptSummary;
+    listEl.innerHTML = bookedToday.map(a=>{
+      // Show due date badge if different from booked date
+      const showDue = a.date && a.date !== (a.bookedDate||a.date);
+      const dueBadge = showDue ? `<span class="appt-pill" style="background:var(--amber-dim);color:var(--amber)">Due ${a.date}</span>` : '';
+      return buildApptCard(a, false, dueBadge);
+    }).join('');
   }
-  el.innerHTML = dayAppts.map(a=>buildApptCard(a)).join('');
+
+  // ── Section B: Appraisals & listings DUE today ──
+  const dueTypes = ['appraisal','listing'];
+  const dueSectionAppts = dueToday.filter(a=>dueTypes.includes(a.type));
+  const duePending = dueSectionAppts.filter(a=>!a.completed).length;
+  const dueDone = dueSectionAppts.filter(a=>a.completed).length;
+
+  document.getElementById('due-pending-count').textContent = duePending;
+  document.getElementById('due-done-count').textContent = dueDone;
+
+  const dueList = document.getElementById('due-appt-list');
+  if(!dueSectionAppts.length){
+    dueList.innerHTML = '<div class="appt-empty" style="padding:16px;">No appraisals or listing presentations due today.</div>';
+  } else {
+    dueList.innerHTML = dueSectionAppts.map(a=>{
+      const timeStr = a.time ? fmtTime12(a.time) : '—';
+      const done = a.completed;
+      const catCol = (a.cat==='LA') ? 'var(--green)' : 'var(--amber)';
+      const statusCol = done ? 'var(--green)' : 'var(--amber)';
+      const statusTxt = done ? '✓ Completed' : '⏳ Pending';
+      const outcomeTxt = done && a.outcome ? ` · ${{win:'🏆 Won',followup:'🔄 Follow-up',lost:'❌ Lost',pending:'⏳ Pending'}[a.outcome]||''}` : '';
+      const bookedLabel = a.bookedDate && a.bookedDate !== a.date ? `<span style="font-size:10px;color:var(--ink3)">Booked: ${a.bookedDate}</span>` : '';
+      return `
+      <div style="background:var(--char3);border-radius:var(--r-sm);border:1px solid ${done?'var(--green)':'var(--char4)'};padding:10px 14px;display:flex;align-items:center;gap:12px;transition:border-color .2s">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${catCol};line-height:1;flex-shrink:0">${a.cat||'MA'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--ink)">${a.name}</div>
+          ${a.address?`<div style="font-size:10px;color:var(--ink3)">📍 ${a.address}</div>`:''}
+          ${bookedLabel}
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+            <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--purple-dim);color:var(--purple);font-family:'DM Mono',monospace">🕐 ${timeStr}</span>
+            <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:${done?'var(--green-dim)':'var(--amber-dim)'};color:${statusCol};font-family:'DM Mono',monospace">${statusTxt}${outcomeTxt}</span>
+            <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--char4);color:var(--ink2);font-family:'DM Mono',monospace">${typeLabel(a.type)}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+          <button onclick="toggleApptComplete('${a.id}')" style="background:${done?'var(--green-dim)':'var(--char4)'};border:1px solid ${done?'var(--green)':'var(--char4)'};color:${done?'var(--green)':'var(--ink2)'};font-size:11px;font-weight:600;padding:5px 10px;border-radius:var(--r-sm);cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">
+            ${done?'✓ Done':'Mark done'}
+          </button>
+          <button onclick="editAppt('${a.id}')" style="background:var(--char4);border:none;color:var(--ink2);font-size:11px;padding:5px 10px;border-radius:var(--r-sm);cursor:pointer;font-family:'Outfit',sans-serif">Edit</button>
+          <button onclick="openCancelModal('${a.id}')" style="background:var(--red-dim);border:1px solid var(--red);color:var(--red);font-size:11px;padding:5px 10px;border-radius:var(--r-sm);cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600">❌ Cancel</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Upcoming reminder: appts due in next 7 days ──
+  const todayStr = key;
+  const in7 = new Date(curDate); in7.setDate(in7.getDate()+7);
+  const upcoming = allAppts.filter(a=>{
+    return a.date > todayStr && a.date <= dateKey(in7) && !a.completed;
+  }).sort((a,b)=>a.date>b.date?1:-1).slice(0,3);
+  const reminderEl = document.getElementById('upcoming-reminder');
+  const reminderText = document.getElementById('upcoming-text');
+  if(upcoming.length){
+    reminderEl.style.display = 'block';
+    reminderText.textContent = upcoming.map(a=>{
+      const d = new Date(a.date+'T12:00:00');
+      const day = d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+      return `${a.name} (${day}${a.time?' '+fmtTime12(a.time):''})`;
+    }).join(' · ');
+  } else {
+    reminderEl.style.display = 'none';
+  }
+}
+
+function fmtTime12(t){
+  if(!t) return '—';
+  const [hh,mm] = t.split(':');
+  const h = parseInt(hh);
+  return `${h>12?h-12:h||12}:${mm}${h>=12?'pm':'am'}`;
 }
 
 function renderApptTab(){
@@ -1475,6 +1915,7 @@ function renderDaily(){
 
   renderDailyAppts();
   updateHeroStats(day);
+  updateCancelledHeroStat();
 }
 
 function updateHeroStats(day){
@@ -1563,12 +2004,13 @@ function renderWeekly(){
     return `<tr><td><div class="row-name" ${totalStyle}>${kpi.label}</div><div class="row-target">Daily: ${kpi.target}</div></td>${cells}<td><div class="wk-total" ${totalStyle}>${wkTotal}</div></td><td style="color:var(--ink3);font-size:10px">${kpi.wt}/wk</td></tr>`;
   }).join('');
 
-  // Add appointment rows
-  days.forEach(d=>{ const dk=dateKey(d); const da=allAppts.filter(a=>a.date===dk); totApptBooked+=da.length; totApptDone+=da.filter(a=>a.completed).length; });
-  const apptBookedCells = days.map(d=>{ const dk=dateKey(d); const v=allAppts.filter(a=>a.date===dk).length; const isT=dk===todayKey; return `<td class="${isT?'today-cell':''}"><div class="wk-val" style="color:var(--amber)">${v}</div></td>`; }).join('');
+  // Add appointment rows — booked uses bookedDate, completed uses date (due date)
+  days.forEach(d=>{ const dk=dateKey(d); const da=allAppts.filter(a=>(a.bookedDate||a.date)===dk); totApptBooked+=da.length; });
+  days.forEach(d=>{ const dk=dateKey(d); totApptDone+=allAppts.filter(a=>a.date===dk&&a.completed).length; });
+  const apptBookedCells = days.map(d=>{ const dk=dateKey(d); const v=allAppts.filter(a=>(a.bookedDate||a.date)===dk).length; const isT=dk===todayKey; return `<td class="${isT?'today-cell':''}"><div class="wk-val" style="color:var(--amber)">${v}</div></td>`; }).join('');
   const apptDoneCells = days.map(d=>{ const dk=dateKey(d); const v=allAppts.filter(a=>a.date===dk&&a.completed).length; const isT=dk===todayKey; return `<td class="${isT?'today-cell':''}"><div class="wk-val" style="color:var(--green)">${v}</div></td>`; }).join('');
   tbody.innerHTML += `<tr style="border-top:1px solid var(--char4)"><td><div class="row-name" style="color:var(--amber)">Appts booked</div><div class="row-target">Daily: 2+</div></td>${apptBookedCells}<td><div class="wk-total" style="color:var(--amber)">${totApptBooked}</div></td><td style="color:var(--ink3);font-size:10px">10/wk</td></tr>`;
-  tbody.innerHTML += `<tr><td><div class="row-name" style="color:var(--green)">Appts completed</div><div class="row-target">Daily: 2+</div></td>${apptDoneCells}<td><div class="wk-total">${totApptDone}</div></td><td style="color:var(--ink3);font-size:10px">8/wk</td></tr>`;
+  tbody.innerHTML += `<tr><td><div class="row-name" style="color:var(--green)">Appts completed</div><div class="row-target">Daily: 1+</div></td>${apptDoneCells}<td><div class="wk-total">${totApptDone}</div></td><td style="color:var(--ink3);font-size:10px">5/wk</td></tr>`;
 
   const compRate = totApptBooked>0?Math.round((totApptDone/totApptBooked)*100):0;
   document.getElementById('w-calls').textContent=totCalls;
@@ -1585,7 +2027,7 @@ function renderWeekly(){
     {l:'SMS sent (target 50)',v:totSms,max:50,c:'',hex:'#00c9b1'},
     {l:'Reports sent (target 15)',v:totReports,max:15,c:'',hex:'#f59e0b'},
     {l:'Appts booked (target 10)',v:totApptBooked,max:10,c:'a'},
-    {l:'Appts completed (target 8)',v:totApptDone,max:8,c:'g'},
+    {l:'Appts completed (target 5)',v:totApptDone,max:5,c:'g'},
     {l:'Appraisals (target 10)',v:totAppr,max:10,c:''},
   ];
   document.getElementById('weekly-prog-bars').innerHTML=targets.map(t=>{
