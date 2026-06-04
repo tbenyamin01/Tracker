@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EP Tracker — Thomas Benyamin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --pink:#F0018E;--pink-dim:rgba(240,1,142,0.12);--pink-glow:rgba(240,1,142,0.25);
+  --char:#17181c;--char2:#22242b;--char3:#2c2f38;--char4:#363944;
+  --ink:#e8e9ec;--ink2:#a8aab8;--ink3:#5c5f70;
+  --green:#00d68f;--green-dim:rgba(0,214,143,0.12);
+  --amber:#ffb340;--amber-dim:rgba(255,179,64,0.12);
+  --blue:#4d9fff;--blue-dim:rgba(77,159,255,0.12);
+  --purple:#a78bfa;--purple-dim:rgba(167,139,250,0.12);
+  --red:#ff4d6a;--red-dim:rgba(255,77,106,0.12);
+  --r:10px;--r-sm:6px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--char);color:var(--ink);font-family:'Outfit',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--char2)}
+::-webkit-scrollbar-thumb{background:var(--char4);border-radius:2px}
+
+/* NAV */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(23,24,28,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--char3);display:flex;align-items:center;padding:0 24px;}
+.brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.04em;color:#fff;margin-right:auto;display:flex;align-items:center;gap:10px;padding:14px 0;}
+.brand-sub{font-family:'Outfit',sans-serif;font-size:11px;font-weight:500;color:var(--ink2);letter-spacing:0.02em;text-transform:uppercase}
+.brand-dot{width:6px;height:6px;border-radius:50%;background:var(--pink);flex-shrink:0}
+.tabs{display:flex;gap:0}
+.tab{background:none;border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;padding:16px 18px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;}
+.tab:hover{color:var(--ink2)}
+.tab.on{color:#fff;border-bottom-color:var(--pink)}
+.date-badge{font-family:'DM Mono',monospace;font-size:11px;background:var(--char3);color:var(--ink2);padding:6px 12px;border-radius:20px;margin-left:16px;white-space:nowrap;}
+
+/* PAGES */
+.page{display:none;padding:24px;max-width:1120px;margin:0 auto;animation:fade .22s ease}
+.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* SECTION HEAD */
+.sec-head{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;margin-top:20px;}
+.sec-head:first-child{margin-top:0}
+.sec-dot{width:6px;height:6px;border-radius:50%;background:var(--pink);flex-shrink:0}
+.sec-dot.g{background:var(--green)}.sec-dot.a{background:var(--amber)}.sec-dot.b{background:var(--blue)}.sec-dot.w{background:#fff}.sec-dot.p{background:var(--purple)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--char2) 0%,var(--char3) 100%);border:1px solid var(--char4);border-radius:var(--r);padding:18px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),transparent);}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.03em;color:#fff;line-height:1}
+.hero-sub{font-size:11px;color:var(--ink2);margin-top:3px}
+.hero-stats{display:flex;gap:20px;flex-wrap:wrap}
+.hstat{text-align:center}
+.hstat-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--pink);line-height:1}
+.hstat-val.g{color:var(--green)}.hstat-val.a{color:var(--amber)}.hstat-val.b{color:var(--blue)}.hstat-val.p{color:var(--purple)}
+.hstat-lbl{font-size:9px;color:var(--ink3);margin-top:2px;letter-spacing:0.05em;text-transform:uppercase}
+
+/* CARD */
+.card{background:var(--char2);border:1px solid var(--char3);border-radius:var(--r);padding:14px 16px;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.mb{margin-bottom:12px}
+
+/* STAT BOX */
+.statbox{background:var(--char3);border-radius:var(--r-sm);padding:10px 12px;border:1px solid var(--char4);}
+.statbox-lbl{font-size:9px;color:var(--ink3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px}
+.statbox-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--pink);line-height:1}
+.statbox-val.g{color:var(--green)}.statbox-val.a{color:var(--amber)}.statbox-val.w{color:#fff}.statbox-val.p{color:var(--purple)}
+.statbox-target{font-size:9px;color:var(--ink3);margin-top:2px}
+
+/* CHECKLIST */
+.clist{list-style:none}
+.clist li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--char3);cursor:pointer;border-radius:4px;transition:background .1s;}
+.clist li:last-child{border-bottom:none}
+.clist li:hover{background:rgba(255,255,255,0.02)}
+.clist li.done .ctext{text-decoration:line-through;color:var(--ink3)}
+.clist li.done .cbox{background:var(--green);border-color:var(--green)}
+.clist li.done .cbox::after{opacity:1}
+.cbox{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--char4);flex-shrink:0;margin-top:1px;position:relative;transition:all .15s;}
+.cbox::after{content:'';position:absolute;left:4px;top:1px;width:5px;height:9px;border:2px solid var(--char);border-top:none;border-left:none;transform:rotate(45deg);opacity:0;transition:opacity .15s;}
+.ctext{font-size:12px;color:var(--ink);line-height:1.4;flex:1}
+.ctag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;font-family:'DM Mono',monospace;}
+.t-pink{background:var(--pink-dim);color:var(--pink)}.t-green{background:var(--green-dim);color:var(--green)}
+.t-amber{background:var(--amber-dim);color:var(--amber)}.t-blue{background:var(--blue-dim);color:var(--blue)}
+.t-gray{background:var(--char3);color:var(--ink2)}.t-red{background:var(--red-dim);color:var(--red)}.t-purple{background:var(--purple-dim);color:var(--purple)}
+
+/* STEPPER */
+.activity-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--char3);}
+.activity-row:last-child{border-bottom:none}
+.ainfo{flex:1}
+.aname{font-size:12px;font-weight:600;color:var(--ink)}
+.adesc{font-size:10px;color:var(--ink3);margin-top:2px}
+.atarget{font-size:10px;color:var(--ink3);white-space:nowrap}
+.stepper{display:flex;align-items:center;border:1px solid var(--char4);border-radius:var(--r-sm);overflow:hidden;flex-shrink:0;}
+.sbtn{width:28px;height:28px;background:var(--char3);border:none;color:var(--ink2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.sbtn:hover{background:var(--pink);color:#fff}
+.sval{width:36px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:17px;color:#fff;background:var(--char2);border:none;outline:none;padding:0 2px;}
+
+/* APPOINTMENT MODULE */
+.appt-panel{background:var(--char2);border:1px solid var(--purple);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;}
+.appt-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--purple);}
+.appt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.appt-title-row{display:flex;align-items:center;gap:8px;}
+.appt-counters{display:flex;gap:12px;flex-wrap:wrap;}
+.appt-counter{background:var(--char3);border-radius:var(--r-sm);padding:6px 12px;border:1px solid var(--char4);text-align:center;min-width:70px;}
+.appt-counter-val{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1}
+.appt-counter-val.booked{color:var(--amber)}
+.appt-counter-val.completed{color:var(--green)}
+.appt-counter-val.ratio{color:var(--purple)}
+.appt-counter-lbl{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-top:1px}
+.appt-add-btn{background:var(--purple);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;padding:6px 14px;border-radius:var(--r-sm);cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.appt-add-btn:hover{opacity:.85}
+.appt-list{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;}
+.appt-item{background:var(--char3);border-radius:var(--r-sm);border:1px solid var(--char4);padding:10px 12px;display:flex;align-items:flex-start;gap:10px;transition:border-color .15s;}
+.appt-item.completed-appt{border-color:var(--green);opacity:0.75}
+.appt-item.completed-appt .appt-name{text-decoration:line-through;color:var(--ink3)}
+.appt-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--char4);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s;margin-top:1px;}
+.appt-check:hover{border-color:var(--green);background:var(--green-dim)}
+.appt-check.done{background:var(--green);border-color:var(--green);color:var(--char)}
+.appt-body{flex:1;min-width:0}
+.appt-name{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.appt-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.appt-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.appt-pill.type-appraisal{background:var(--amber-dim);color:var(--amber)}
+.appt-pill.type-listing{background:var(--green-dim);color:var(--green)}
+.appt-pill.type-followup{background:var(--blue-dim);color:var(--blue)}
+.appt-pill.type-open{background:var(--pink-dim);color:var(--pink)}
+.appt-pill.type-other{background:var(--char4);color:var(--ink2)}
+.appt-pill.time{background:var(--purple-dim);color:var(--purple)}
+.appt-pill.outcome-win{background:var(--green-dim);color:var(--green)}
+.appt-pill.outcome-followup{background:var(--amber-dim);color:var(--amber)}
+.appt-pill.outcome-lost{background:var(--red-dim);color:var(--red)}
+.appt-actions{display:flex;gap:4px;flex-shrink:0;}
+.appt-action-btn{width:24px;height:24px;border-radius:4px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.appt-action-btn.del{background:var(--red-dim);color:var(--red);}
+.appt-action-btn.del:hover{background:var(--red);color:#fff}
+.appt-action-btn.cal{background:var(--blue-dim);color:var(--blue);}
+.appt-action-btn.cal:hover{background:var(--blue);color:#fff}
+.appt-action-btn.sms-btn{background:var(--green-dim);color:var(--green);}
+.appt-action-btn.sms-btn:hover{background:var(--green);color:var(--char)}
+.appt-action-btn.edit-btn{background:var(--purple-dim);color:var(--purple);}
+.appt-action-btn.edit-btn:hover{background:var(--purple);color:#fff}
+.action-bar{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+.action-btn-wide{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:5px 10px;border-radius:var(--r-sm);border:none;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .15s;white-space:nowrap;}
+.action-btn-wide:hover{opacity:.85}
+.action-btn-cal{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue)}
+.action-btn-sms{background:var(--green-dim);color:var(--green);border:1px solid var(--green)}
+.appt-cat-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.05em;}
+.appt-cat-MA{background:var(--amber-dim);color:var(--amber)}
+.appt-cat-LA{background:var(--green-dim);color:var(--green)}
+.appt-note{font-size:11px;color:var(--ink3);margin-top:4px;line-height:1.4;font-style:italic;}
+.appt-empty{text-align:center;padding:20px;color:var(--ink3);font-size:12px;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex}
+.modal{background:var(--char2);border:1px solid var(--purple);border-radius:12px;padding:24px;width:92%;max-width:480px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--purple);border-radius:12px 12px 0 0;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;margin-bottom:16px;letter-spacing:0.03em}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--ink3);font-size:18px;cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--ink)}
+.form-row{margin-bottom:12px}
+.form-label{font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--char3);border:1px solid var(--char4);border-radius:var(--r-sm);color:var(--ink);font-family:'Outfit',sans-serif;font-size:13px;padding:8px 10px;outline:none;transition:border-color .15s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--purple)}
+.form-select option{background:var(--char3)}
+.form-textarea{resize:vertical;min-height:60px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn-cancel{background:var(--char3);border:1px solid var(--char4);color:var(--ink2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--r-sm);cursor:pointer;}
+.btn-cancel:hover{border-color:var(--char4);color:var(--ink)}
+.btn-save{background:var(--purple);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:8px 20px;border-radius:var(--r-sm);cursor:pointer;transition:opacity .15s;}
+.btn-save:hover{opacity:.85}
+
+/* OUTCOME SELECTOR */
+.outcome-row{display:flex;gap:6px;flex-wrap:wrap;}
+.outcome-opt{background:var(--char3);border:1px solid var(--char4);border-radius:var(--r-sm);padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;color:var(--ink2);transition:all .15s;}
+.outcome-opt:hover{border-color:var(--ink2)}
+.outcome-opt.sel-win{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.outcome-opt.sel-followup{background:var(--amber-dim);border-color:var(--amber);color:var(--amber)}
+.outcome-opt.sel-lost{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.outcome-opt.sel-pending{background:var(--purple-dim);border-color:var(--purple);color:var(--purple)}
+
+/* PROGRESS BAR */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.prog-lbl{font-size:11px;color:var(--ink2);width:150px;flex-shrink:0}
+.prog-track{flex:1;height:5px;background:var(--char3);border-radius:10px;overflow:hidden}
+.prog-fill{height:5px;border-radius:10px;background:var(--pink);transition:width .4s ease}
+.prog-fill.g{background:var(--green)}.prog-fill.a{background:var(--amber)}.prog-fill.p{background:var(--purple)}
+.prog-count{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:#fff;width:44px;text-align:right}
+
+/* DATE NAV */
+.datenav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.datelbl{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;flex:1}
+.datelbl-sub{font-size:11px;color:var(--ink3);font-family:'Outfit',sans-serif;font-weight:400;margin-left:8px}
+.dnbtn{width:28px;height:28px;background:var(--char3);border:1px solid var(--char4);border-radius:var(--r-sm);color:var(--ink2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.dnbtn:hover{background:var(--char4);color:#fff}
+.dntodaybtn{background:var(--pink);border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;padding:0 12px;height:28px;border-radius:var(--r-sm);cursor:pointer;transition:opacity .15s;}
+.dntodaybtn:hover{opacity:.85}
+.saved-flash{font-size:10px;color:var(--green);display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .3s;font-family:'DM Mono',monospace;}
+.saved-flash.show{opacity:1}
+
+/* TEXTAREA */
+.note-area{width:100%;background:var(--char3);border:1px solid var(--char4);border-radius:var(--r-sm);color:var(--ink);font-family:'Outfit',sans-serif;font-size:12px;padding:9px 11px;resize:vertical;min-height:64px;outline:none;transition:border-color .15s;}
+.note-area:focus{border-color:var(--pink)}
+.note-label{font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px}
+
+/* WEEKLY GRID */
+.wk-wrap{overflow-x:auto}
+.wk-table{width:100%;border-collapse:collapse;min-width:600px}
+.wk-table th{background:var(--char3);padding:7px 8px;font-size:10px;font-weight:600;text-align:center;color:var(--ink2);letter-spacing:0.05em;text-transform:uppercase;border-bottom:1px solid var(--char4);}
+.wk-table th:first-child{text-align:left;padding-left:12px}
+.wk-table th.today{color:var(--pink)}
+.wk-table td{padding:6px 8px;border-bottom:1px solid var(--char3);text-align:center;vertical-align:middle}
+.wk-table td:first-child{text-align:left;padding-left:12px}
+.wk-table tr:last-child td{border-bottom:none}
+.wk-table tr:hover td{background:rgba(255,255,255,0.015)}
+.wk-table td.today-cell{background:var(--pink-dim)}
+.row-name{font-size:12px;font-weight:500;color:var(--ink)}
+.row-target{font-size:9px;color:var(--ink3);margin-top:1px}
+.wk-val{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff}
+.wk-mini{width:28px;height:3px;background:var(--char4);border-radius:10px;margin:2px auto 0;overflow:hidden}
+.wk-mini-fill{height:3px;border-radius:10px;background:var(--pink)}
+.wk-total{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--green)}
+.wk-total.p{color:var(--purple)}
+
+/* MILESTONE */
+.ml-wrap{padding-left:22px;position:relative}
+.ml-wrap::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--char4)}
+.ml-item{position:relative;margin-bottom:16px}
+.ml-dot{position:absolute;left:-19px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid var(--char2)}
+.ml-dot.active{background:var(--pink);border-color:var(--pink);box-shadow:0 0 10px var(--pink-glow)}
+.ml-dot.future{background:var(--char4);border-color:var(--char4)}
+.ml-dot.done{background:var(--green);border-color:var(--green)}
+.ml-period{font-size:9px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;font-family:'DM Mono',monospace}
+.ml-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
+.ml-desc{font-size:11px;color:var(--ink2);line-height:1.5}
+
+/* COMP TABLE */
+.comp-table{width:100%;border-collapse:collapse;font-size:11px}
+.comp-table th{background:var(--char3);padding:7px 8px;text-align:left;font-weight:600;font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--char4)}
+.comp-table td{padding:8px;border-bottom:1px solid var(--char3);color:var(--ink);vertical-align:top}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr.you td{background:var(--green-dim);color:var(--green);font-weight:600}
+.pill{display:inline-block;font-size:9px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;font-family:'DM Mono',monospace}
+.pill-red{background:var(--red-dim);color:var(--red)}.pill-amber{background:var(--amber-dim);color:var(--amber)}
+.pill-green{background:var(--green-dim);color:var(--green)}.pill-gray{background:var(--char3);color:var(--ink2)}
+
+/* APPT RATE BADGE */
+.rate-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;}
+.rate-high{background:var(--green-dim);color:var(--green)}
+.rate-mid{background:var(--amber-dim);color:var(--amber)}
+.rate-low{background:var(--red-dim);color:var(--red)}
+
+@media(max-width:700px){
+  .g2,.g3,.g4,.g5{grid-template-columns:1fr}
+  .hero-stats{display:none}
+  .page{padding:14px}
+  .topbar{padding:0 14px}
+  .form-row-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- APPOINTMENT MODAL -->
+<div class="modal-overlay" id="appt-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modal-title-text">New Appointment</div>
+
+    <!-- Appointment category — MA or LA -->
+    <div class="form-row">
+      <label class="form-label">Appointment type</label>
+      <div style="display:flex;gap:8px">
+        <div id="cat-MA" onclick="selectCat('MA')" style="flex:1;padding:10px;text-align:center;border-radius:var(--r-sm);border:2px solid var(--amber);background:var(--amber-dim);color:var(--amber);font-family:'Bebas Neue',sans-serif;font-size:16px;cursor:pointer;letter-spacing:0.05em">MA — Market Appraisal</div>
+        <div id="cat-LA" onclick="selectCat('LA')" style="flex:1;padding:10px;text-align:center;border-radius:var(--r-sm);border:1px solid var(--char4);background:var(--char3);color:var(--ink3);font-family:'Bebas Neue',sans-serif;font-size:16px;cursor:pointer;letter-spacing:0.05em">LA — Listing Appt</div>
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Client name</label>
+        <input class="form-input" id="m-name" placeholder="e.g. John Smith">
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Phone number</label>
+        <input class="form-input" id="m-phone" placeholder="04XX XXX XXX" type="tel">
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top:12px">
+      <label class="form-label">Property address</label>
+      <input class="form-input" id="m-address" placeholder="Full address — used in Calendar location">
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Date</label>
+        <input class="form-input" id="m-date" type="date">
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">Time</label>
+        <input class="form-input" id="m-time" type="time">
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top:12px">
+      <label class="form-label">Other appointment subtype (optional)</label>
+      <select class="form-select" id="m-type">
+        <option value="appraisal">Market Appraisal</option>
+        <option value="listing">Listing Presentation</option>
+        <option value="followup">Follow-up Call</option>
+        <option value="open">Open Home</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Notes — appear in Calendar description</label>
+      <textarea class="form-textarea" id="m-notes" placeholder="Vendor context, what to bring, key talking points, motivation to sell..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveAppt()">Book Appointment</button>
+    </div>
+  </div>
+</div>
+
+<!-- OUTCOME MODAL -->
+<div class="modal-overlay" id="outcome-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeOutcomeModal()">✕</button>
+    <div class="modal-title">Appointment Outcome</div>
+    <div id="outcome-appt-name" style="font-size:13px;color:var(--ink2);margin-bottom:14px;padding:8px 10px;background:var(--char3);border-radius:var(--r-sm)"></div>
+    <div class="form-row">
+      <label class="form-label">Outcome</label>
+      <div class="outcome-row" id="outcome-opts">
+        <div class="outcome-opt" onclick="selectOutcome('win',this)">🏆 Won Listing</div>
+        <div class="outcome-opt" onclick="selectOutcome('followup',this)">🔄 Follow-up needed</div>
+        <div class="outcome-opt" onclick="selectOutcome('lost',this)">❌ Lost / No go</div>
+        <div class="outcome-opt" onclick="selectOutcome('pending',this)">⏳ Decision pending</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Outcome notes</label>
+      <textarea class="form-textarea" id="outcome-notes" placeholder="What happened? Next steps? Key insights from this vendor..."></textarea>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Follow-up date (if needed)</label>
+      <input class="form-input" id="outcome-followup-date" type="date">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeOutcomeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveOutcome()">Save Outcome</button>
+    </div>
+  </div>
+</div>
+
+<!-- SMS COPY MODAL -->
+<div class="modal-overlay" id="sms-copy-modal">
+  <div class="modal" style="border-color:#00d68f;max-width:540px">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:#00d68f;border-radius:12px 12px 0 0"></div>
+    <button class="modal-close" onclick="document.getElementById('sms-copy-modal').classList.remove('open')">✕</button>
+    <div class="modal-title" style="color:#00d68f">💬 Send Thank You SMS</div>
+
+    <!-- Phone number row -->
+    <div style="background:var(--char3);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div>
+        <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Send to</div>
+        <div id="sms-copy-number" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:#fff"></div>
+      </div>
+      <button onclick="copySmsNumber()" id="copy-num-btn" style="background:var(--char4);border:1px solid var(--char4);color:var(--ink2);font-size:11px;font-weight:600;padding:5px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap">Copy number</button>
+    </div>
+
+    <!-- Message box -->
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Message — edit before sending</div>
+      <textarea id="sms-copy-body" rows="5" oninput="refreshQr()" style="width:100%;background:var(--char3);border:1px solid var(--char4);border-radius:var(--r-sm);color:var(--ink);font-family:'Outfit',sans-serif;font-size:13px;padding:10px 12px;resize:vertical;outline:none;line-height:1.6;transition:border-color .15s" onfocus="this.style.borderColor='#00d68f'" onblur="this.style.borderColor='var(--char4)'"></textarea>
+    </div>
+
+    <!-- Two column: Copy button + QR -->
+    <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start">
+
+      <!-- Left: buttons + instructions -->
+      <div>
+        <button onclick="copySmsMessage()" id="copy-msg-btn" style="width:100%;background:#00d68f;border:none;color:#17181c;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;padding:11px 16px;border-radius:var(--r-sm);cursor:pointer;margin-bottom:8px;transition:opacity .15s">
+          📋 Copy Message
+        </button>
+        <button onclick="openSmsApp()" id="sms-open-btn" style="width:100%;background:var(--char3);border:1px solid #00d68f;color:#00d68f;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:11px 16px;border-radius:var(--r-sm);cursor:pointer;margin-bottom:12px;transition:all .15s">
+          📱 Open on this device
+        </button>
+        <div style="font-size:11px;color:var(--ink3);line-height:1.9;background:var(--char3);border-radius:var(--r-sm);padding:10px 12px">
+          <div style="color:var(--ink2);font-weight:600;margin-bottom:4px">How to send:</div>
+          <div>📱 <strong style="color:var(--ink2)">iPhone/Android:</strong> Scan QR with camera → Messages opens pre-filled → Send</div>
+          <div>💻 <strong style="color:var(--ink2)">Mac:</strong> Tap <em>Open on this device</em> → iMessage opens</div>
+          <div>🖥️ <strong style="color:var(--ink2)">Windows PC:</strong> Scan QR code with iPhone → Send</div>
+        </div>
+      </div>
+
+      <!-- Right: QR code -->
+      <div style="text-align:center;flex-shrink:0">
+        <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Scan with iPhone</div>
+        <div id="qr-container" style="background:#fff;padding:10px;border-radius:var(--r-sm);display:inline-block;line-height:0">
+          <canvas id="qr-canvas" width="160" height="160"></canvas>
+        </div>
+        <div style="font-size:10px;color:var(--ink3);margin-top:6px">Opens Messages pre-filled</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<nav class="topbar">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    THOMAS BENYAMIN
+    <span class="brand-sub">Edmondson Park · Urban RE</span>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('daily',this)">Daily</button>
+    <button class="tab" onclick="switchTab('weekly',this)">Weekly</button>
+    <button class="tab" onclick="switchTab('appointments',this)">Appointments</button>
+    <button class="tab" onclick="switchTab('milestones',this)">Milestones</button>
+    <button class="tab" onclick="switchTab('intel',this)">Intel</button>
+  </div>
+  <div class="date-badge" id="topbar-date">—</div>
+</nav>
+
+<!-- ═══════════════════════ DAILY ═══════════════════════ -->
+<div class="page on" id="page-daily">
+  <div class="hero">
+    <div>
+      <div class="hero-title">Daily Tracker</div>
+      <div class="hero-sub">Edmondson Park NSW 2174 · Goal: #1 individual agent in 24 months</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val" id="h-calls">0</div><div class="hstat-lbl">Calls</div></div>
+      <div class="hstat"><div class="hstat-val" id="h-doors">0</div><div class="hstat-lbl">Doors</div></div>
+      <div class="hstat"><div class="hstat-val" id="h-sms" style="color:#00c9b1">0</div><div class="hstat-lbl">SMS Sent</div></div>
+      <div class="hstat"><div class="hstat-val" id="h-reports" style="color:#f59e0b">0</div><div class="hstat-lbl">Reports</div></div>
+      <div class="hstat"><div class="hstat-val a" id="h-appts-booked">0</div><div class="hstat-lbl">Appts Booked</div></div>
+      <div class="hstat"><div class="hstat-val g" id="h-appts-done">0</div><div class="hstat-lbl">Appts Done</div></div>
+      <div class="hstat"><div class="hstat-val" id="h-appraisals">0</div><div class="hstat-lbl">Appraisals</div></div>
+      <div class="hstat"><div class="hstat-val" id="h-listings">0</div><div class="hstat-lbl">Listings</div></div>
+    </div>
+  </div>
+
+  <div class="datenav">
+    <div>
+      <span class="datelbl" id="day-display">—</span>
+      <span class="datelbl-sub" id="weekday-display"></span>
+    </div>
+    <button class="dnbtn" onclick="shiftDay(-1)">←</button>
+    <button class="dntodaybtn" onclick="jumpToday()">Today</button>
+    <button class="dnbtn" onclick="shiftDay(1)">→</button>
+    <span class="saved-flash" id="save-flash">✓ saved</span>
+  </div>
+
+  <!-- ROW 1 -->
+  <div class="g2 mb">
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot w"></div>Morning block · 5:30–8:00 am</div>
+      <ul class="clist" id="cl-morning">
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Faith / prayer / journal — 30 min. No phone until 6:30am.</span><span class="ctag t-gray">5:30</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Gym / walk / exercise — 30 min</span><span class="ctag t-gray">6:00</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Film one Reel or TikTok — market update, sold result, or suburb tip</span><span class="ctag t-pink">Content</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Post / schedule content live before power hour</span><span class="ctag t-pink">7:45am</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot"></div>Power hour · 8:00–9:00 am (no exceptions)</div>
+      <div class="activity-row">
+        <div class="ainfo"><div class="aname">Prospecting calls</div><div class="adesc">Past enquiries · appraisal follow-ups · database contacts</div></div>
+        <div class="atarget">Min 20</div>
+        <div class="stepper">
+          <button class="sbtn" onclick="step('calls',-1)">−</button>
+          <input class="sval" id="calls-val" value="0" readonly>
+          <button class="sbtn" onclick="step('calls',1)">+</button>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="ainfo"><div class="aname">New CRM contacts added</div><div class="adesc">From calls, doors, open homes today</div></div>
+        <div class="atarget">Min 5</div>
+        <div class="stepper">
+          <button class="sbtn" onclick="step('crm',-1)">−</button>
+          <input class="sval" id="crm-val" value="0" readonly>
+          <button class="sbtn" onclick="step('crm',1)">+</button>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="ainfo">
+          <div class="aname" style="color:#00c9b1">SMS sent</div>
+          <div class="adesc">Prospect outreach · appt reminders · follow-ups · review requests</div>
+        </div>
+        <div class="atarget">Min 10</div>
+        <div class="stepper" style="border-color:#00c9b1">
+          <button class="sbtn" onclick="step('sms',-1)" style="color:#00c9b1">−</button>
+          <input class="sval" id="sms-val" value="0" readonly style="color:#00c9b1">
+          <button class="sbtn" onclick="step('sms',1)" style="color:#00c9b1">+</button>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--char3)">
+        <div class="note-label">Best call outcome today</div>
+        <textarea class="note-area" id="best-call" rows="2" placeholder="Name, address, next step..." oninput="persist()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="g2 mb">
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot w"></div>Admin block · 9:00–10:30 am</div>
+      <ul class="clist" id="cl-admin">
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Reply to ALL enquiries — within 60 min of receipt</span><span class="ctag t-blue">Speed</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Update CRM — all contacts touched yesterday</span><span class="ctag t-gray">CRM</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Send vendor feedback reports (if open home yesterday)</span><span class="ctag t-green">Vendors</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Confirm today's appointments — send reminder SMS to each</span><span class="ctag t-purple">Appts</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Plan today's door knock route on map</span><span class="ctag t-gray">Route</span></li>
+      </ul>
+      <div style="border-top:1px solid var(--char3);margin-top:8px;padding-top:10px">
+        <div class="activity-row" style="padding-top:0">
+          <div class="ainfo">
+            <div class="aname" style="color:#f59e0b">Reports sent</div>
+            <div class="adesc">Vendor feedback · market updates · buyer reports · campaign reports</div>
+          </div>
+          <div class="atarget">Daily</div>
+          <div class="stepper" style="border-color:#f59e0b">
+            <button class="sbtn" onclick="step('reports',-1)" style="color:#f59e0b">−</button>
+            <input class="sval" id="reports-val" value="0" readonly style="color:#f59e0b">
+            <button class="sbtn" onclick="step('reports',1)" style="color:#f59e0b">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot g"></div>Listings block · 10:30 am–12:30 pm</div>
+      <div class="activity-row">
+        <div class="ainfo"><div class="aname">Appraisals completed</div><div class="adesc">Full comparables kit · campaign proposal brought</div></div>
+        <div class="atarget">Target 2</div>
+        <div class="stepper">
+          <button class="sbtn" onclick="step('appraisals',-1)">−</button>
+          <input class="sval" id="appraisals-val" value="0" readonly>
+          <button class="sbtn" onclick="step('appraisals',1)">+</button>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="ainfo"><div class="aname">Listing presentations delivered</div><div class="adesc">Formal pitch to vendor — outcome logged in Appointments tab</div></div>
+        <div class="atarget">Varies</div>
+        <div class="stepper">
+          <button class="sbtn" onclick="step('listings',-1)">−</button>
+          <input class="sval" id="listings-val" value="0" readonly>
+          <button class="sbtn" onclick="step('listings',1)">+</button>
+        </div>
+      </div>
+      <ul class="clist" id="cl-midday" style="margin-top:6px">
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Eat lunch at Ed Square — deliberate community visibility</span><span class="ctag t-pink">Presence</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- APPOINTMENT PANEL — DAILY -->
+  <div class="appt-panel mb">
+    <div class="appt-header">
+      <div class="appt-title-row">
+        <div class="sec-dot p"></div>
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3)">Today's Appointments</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="appt-counters">
+          <div class="appt-counter">
+            <div class="appt-counter-val booked" id="d-appt-booked">0</div>
+            <div class="appt-counter-lbl">Booked</div>
+          </div>
+          <div class="appt-counter">
+            <div class="appt-counter-val completed" id="d-appt-done">0</div>
+            <div class="appt-counter-lbl">Completed</div>
+          </div>
+          <div class="appt-counter">
+            <div class="appt-counter-val ratio" id="d-appt-ratio">0%</div>
+            <div class="appt-counter-lbl">Complete rate</div>
+          </div>
+        </div>
+        <button class="appt-add-btn" onclick="openModal()">+ Book Appointment</button>
+      </div>
+    </div>
+    <div class="appt-list" id="daily-appt-list">
+      <div class="appt-empty">No appointments booked yet today.<br>Click <strong>+ Book Appointment</strong> to add one.</div>
+    </div>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="g2 mb">
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot a"></div>Field work · 1:30–4:00 pm (Mon–Thu)</div>
+      <div class="activity-row">
+        <div class="ainfo"><div class="aname">Door knocks</div><div class="adesc">Gellibrand Rd · Vinny Rd · Croatia Ave · Passendale Rd · Soldiers Pde · Tugela Rise</div></div>
+        <div class="atarget">Min 25</div>
+        <div class="stepper">
+          <button class="sbtn" onclick="step('doors',-1)">−</button>
+          <input class="sval" id="doors-val" value="0" readonly>
+          <button class="sbtn" onclick="step('doors',1)">+</button>
+        </div>
+      </div>
+      <div class="activity-row">
+        <div class="ainfo"><div class="aname">Letterbox drops delivered</div><div class="adesc">400-home micro-farm pocket coverage — monthly target</div></div>
+        <div class="atarget">400/mo</div>
+        <div class="stepper">
+          <button class="sbtn" onclick="step('drops',-1)">−</button>
+          <input class="sval" id="drops-val" value="0" readonly>
+          <button class="sbtn" onclick="step('drops',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot b"></div>Buyer management · 4:00–6:00 pm</div>
+      <ul class="clist" id="cl-buyers">
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Call all registered buyers for upcoming open homes</span><span class="ctag t-blue">Buyers</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Pre-qualify new enquiries received today</span><span class="ctag t-blue">Qualify</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Book private inspections for current listings</span><span class="ctag t-green">Inspect</span></li>
+        <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Send buyer match alerts for any new listings</span><span class="ctag t-amber">Match</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- EOD -->
+  <div class="card mb">
+    <div class="sec-head"><div class="sec-dot w"></div>End of day · 6:30 pm (15 min only — then shut laptop)</div>
+    <div class="g2">
+      <div>
+        <ul class="clist" id="cl-eod">
+          <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Log outcomes for all today's completed appointments</span><span class="ctag t-purple">Outcomes</span></li>
+          <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Request review from any closed/settled vendor today</span><span class="ctag t-pink">Review</span></li>
+          <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Log today's final call / door / appraisal counts</span><span class="ctag t-gray">Log</span></li>
+          <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Write tomorrow's top 3 priorities</span><span class="ctag t-gray">Plan</span></li>
+          <li onclick="tick(this)"><div class="cbox"></div><span class="ctext">Shut laptop. Family time is recovery time.</span><span class="ctag t-green">Done</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="note-label">Tomorrow's top 3 priorities</div>
+        <textarea class="note-area" id="tomorrow-3" placeholder="1. &#10;2. &#10;3. " rows="4" oninput="persist()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="note-label">Today's win / notes</div>
+    <textarea class="note-area" id="daily-notes" placeholder="What moved the needle today? Vendor conversations, appraisal feedback, follow-ups to flag..." rows="3" oninput="persist()"></textarea>
+  </div>
+</div>
+
+<!-- ═══════════════════════ WEEKLY ═══════════════════════ -->
+<div class="page" id="page-weekly">
+  <div class="hero">
+    <div>
+      <div class="hero-title">Weekly Scorecard</div>
+      <div class="hero-sub">100 calls + 100 doors + 10 appts booked + 8 completed = healthy pipeline</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val" id="w-calls">0</div><div class="hstat-lbl">Calls</div></div>
+      <div class="hstat"><div class="hstat-val" id="w-doors">0</div><div class="hstat-lbl">Doors</div></div>
+      <div class="hstat"><div class="hstat-val" id="w-sms" style="color:#00c9b1">0</div><div class="hstat-lbl">SMS Sent</div></div>
+      <div class="hstat"><div class="hstat-val" id="w-reports" style="color:#f59e0b">0</div><div class="hstat-lbl">Reports</div></div>
+      <div class="hstat"><div class="hstat-val a" id="w-appts-booked">0</div><div class="hstat-lbl">Appts Booked</div></div>
+      <div class="hstat"><div class="hstat-val g" id="w-appts-done">0</div><div class="hstat-lbl">Appts Done</div></div>
+      <div class="hstat"><div class="hstat-val p" id="w-comp-rate">0%</div><div class="hstat-lbl">Completion</div></div>
+    </div>
+  </div>
+
+  <div class="card mb">
+    <div class="sec-head"><div class="sec-dot"></div>Week of <span id="week-range" style="color:var(--ink);text-transform:none;letter-spacing:0;font-size:11px;font-weight:600"></span></div>
+    <div class="wk-wrap">
+      <table class="wk-table">
+        <thead id="wk-head"></thead>
+        <tbody id="wk-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="g2 mb">
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot g"></div>Weekly progress vs targets</div>
+      <div id="weekly-prog-bars"></div>
+    </div>
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot"></div>Weekly non-negotiable checklist</div>
+      <ul class="clist" id="cl-weekly">
+        <li onclick="wkTick(this,0)"><div class="cbox"></div><span class="ctext">Brevo market update email sent to 400-home farm database</span><span class="ctag t-pink">Email</span></li>
+        <li onclick="wkTick(this,1)"><div class="cbox"></div><span class="ctext">5–7 social media posts live across IG / Facebook / TikTok</span><span class="ctag t-pink">Content</span></li>
+        <li onclick="wkTick(this,2)"><div class="cbox"></div><span class="ctext">All open home attendees followed up within 24 hours</span><span class="ctag t-blue">Buyers</span></li>
+        <li onclick="wkTick(this,3)"><div class="cbox"></div><span class="ctext">All appointment outcomes logged with follow-up dates</span><span class="ctag t-purple">Appts</span></li>
+        <li onclick="wkTick(this,4)"><div class="cbox"></div><span class="ctext">All vendor feedback reports sent same-day after opens</span><span class="ctag t-green">Vendors</span></li>
+        <li onclick="wkTick(this,5)"><div class="cbox"></div><span class="ctext">Google Business Profile updated with latest sold result</span><span class="ctag t-amber">Profile</span></li>
+        <li onclick="wkTick(this,6)"><div class="cbox"></div><span class="ctext">At least one 5-star review requested from recent client</span><span class="ctag t-pink">Review</span></li>
+        <li onclick="wkTick(this,7)"><div class="cbox"></div><span class="ctext">RateMyAgent suburb ranking checked and screenshot saved</span><span class="ctag t-gray">Rank</span></li>
+        <li onclick="wkTick(this,8)"><div class="cbox"></div><span class="ctext">EP Facebook community group — value post dropped</span><span class="ctag t-amber">Community</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-head"><div class="sec-dot w"></div>Weekly reflection</div>
+    <div class="g2">
+      <div>
+        <div class="note-label">What worked this week?</div>
+        <textarea class="note-area" id="wk-win" placeholder="Best conversation, best result, what clicked..." rows="4" oninput="persistWk()"></textarea>
+      </div>
+      <div>
+        <div class="note-label">What to fix next week?</div>
+        <textarea class="note-area" id="wk-fix" placeholder="What slipped, what needs adjusting..." rows="4" oninput="persistWk()"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ APPOINTMENTS TAB ═══════════════════════ -->
+<div class="page" id="page-appointments">
+  <div class="hero">
+    <div>
+      <div class="hero-title">Appointment Pipeline</div>
+      <div class="hero-sub">All appointments across every day — booked, completed, and outcomes tracked</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val a" id="all-booked">0</div><div class="hstat-lbl">Total Booked</div></div>
+      <div class="hstat"><div class="hstat-val g" id="all-done">0</div><div class="hstat-lbl">Completed</div></div>
+      <div class="hstat"><div class="hstat-val p" id="all-rate">0%</div><div class="hstat-lbl">Completion %</div></div>
+      <div class="hstat"><div class="hstat-val" style="color:var(--green)" id="all-wins">0</div><div class="hstat-lbl">Listings Won</div></div>
+      <div class="hstat"><div class="hstat-val" style="color:var(--amber)" id="all-pending">0</div><div class="hstat-lbl">Pending</div></div>
+    </div>
+  </div>
+
+  <div class="g2 mb">
+    <!-- FILTERS + ADD -->
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot p"></div>Filter & add appointments</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        <select class="form-select" id="filter-type" style="flex:1;min-width:120px" onchange="renderApptTab()">
+          <option value="all">All types</option>
+          <option value="appraisal">Appraisals</option>
+          <option value="listing">Listing presentations</option>
+          <option value="followup">Follow-ups</option>
+          <option value="open">Open homes</option>
+          <option value="other">Other</option>
+        </select>
+        <select class="form-select" id="filter-status" style="flex:1;min-width:120px" onchange="renderApptTab()">
+          <option value="all">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="done">Completed</option>
+          <option value="win">Won listings</option>
+          <option value="followup">Needs follow-up</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+      <button class="appt-add-btn" style="width:100%;padding:10px" onclick="openModal()">+ Book New Appointment</button>
+    </div>
+    <!-- STATS BREAKDOWN -->
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot g"></div>Outcome breakdown</div>
+      <div id="appt-outcome-bars"></div>
+    </div>
+  </div>
+
+  <!-- FULL APPOINTMENT LIST -->
+  <div class="card">
+    <div class="sec-head"><div class="sec-dot p"></div>All appointments <span id="appt-count-label" style="font-weight:400;color:var(--ink3);text-transform:none;letter-spacing:0;font-size:11px"></span></div>
+    <div class="appt-list" id="all-appt-list" style="max-height:600px">
+      <div class="appt-empty">No appointments yet. Start by booking one on the Daily tab or above.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MILESTONES ═══════════════════════ -->
+<div class="page" id="page-milestones">
+  <div class="hero">
+    <div>
+      <div class="hero-title">24-Month Roadmap</div>
+      <div class="hero-sub">~25–30 sales/year = #1 individual agent in Edmondson Park</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val" id="ms-sales-disp">0</div><div class="hstat-lbl">Sales logged</div></div>
+      <div class="hstat"><div class="hstat-val" id="ms-reviews-disp">0</div><div class="hstat-lbl">Reviews</div></div>
+      <div class="hstat"><div class="hstat-val" id="ms-rank-disp">—</div><div class="hstat-lbl">RMA rank</div></div>
+    </div>
+  </div>
+  <div class="g4 mb">
+    <div class="statbox"><div class="statbox-lbl">Sales closed</div><div class="statbox-val" id="ms-sales-v">0</div><div class="statbox-target">Yr 1: 12</div>
+      <div class="stepper" style="margin-top:6px;width:100%"><button class="sbtn" style="flex:1" onclick="msStep('sales',-1)">−</button><div class="sval" id="ms-sales-d" style="flex:2;display:flex;align-items:center;justify-content:center">0</div><button class="sbtn" style="flex:1" onclick="msStep('sales',1)">+</button></div>
+    </div>
+    <div class="statbox"><div class="statbox-lbl">5★ Reviews</div><div class="statbox-val g" id="ms-reviews-v">0</div><div class="statbox-target">Min 1 per sale</div>
+      <div class="stepper" style="margin-top:6px;width:100%"><button class="sbtn" style="flex:1" onclick="msStep('reviews',-1)">−</button><div class="sval" id="ms-reviews-d" style="flex:2;display:flex;align-items:center;justify-content:center">0</div><button class="sbtn" style="flex:1" onclick="msStep('reviews',1)">+</button></div>
+    </div>
+    <div class="statbox"><div class="statbox-lbl">Appraisals total</div><div class="statbox-val a" id="ms-app-v">0</div><div class="statbox-target">8–10/month</div>
+      <div class="stepper" style="margin-top:6px;width:100%"><button class="sbtn" style="flex:1" onclick="msStep('app',-1)">−</button><div class="sval" id="ms-app-d" style="flex:2;display:flex;align-items:center;justify-content:center">0</div><button class="sbtn" style="flex:1" onclick="msStep('app',1)">+</button></div>
+    </div>
+    <div class="statbox"><div class="statbox-lbl">RateMyAgent rank</div><div class="statbox-val w" id="ms-rank-v">—</div><div class="statbox-target">Target: Top 5</div>
+      <input type="text" id="ms-rank-input" placeholder="#42" style="width:100%;margin-top:6px;background:var(--char4);border:1px solid var(--char4);color:#fff;padding:5px 8px;border-radius:var(--r-sm);font-family:'Bebas Neue',sans-serif;font-size:15px;outline:none;text-align:center" oninput="msRank(this.value)">
+    </div>
+  </div>
+  <div class="card mb">
+    <div class="sec-head"><div class="sec-dot g"></div>Competitor gap tracker</div>
+    <div id="gap-bars"></div>
+  </div>
+  <div class="card">
+    <div class="sec-head"><div class="sec-dot"></div>Milestone timeline</div>
+    <div class="ml-wrap">
+      <div class="ml-item"><div class="ml-dot active"></div><div class="ml-period">Months 1–3 · Plant</div><div class="ml-title">400-home micro-farm working weekly · 300 contacts in CRM</div><div class="ml-desc">First appraisal booked by week 6 · First listing by week 10–12 · Over-prepare every system now.</div></div>
+      <div class="ml-item"><div class="ml-dot future"></div><div class="ml-period">Months 4–6 · First proof</div><div class="ml-title">3–5 sales · 5 reviews · Top 20 on RateMyAgent</div><div class="ml-desc">Buyers starting to know your name. Post every sold result within 24 hours. First "I've seen your signs everywhere."</div></div>
+      <div class="ml-item"><div class="ml-dot future"></div><div class="ml-period">Months 7–12 · Build momentum</div><div class="ml-title">8–12 sales · 10+ reviews · Top 10 RateMyAgent</div><div class="ml-desc">First vendor who calls you directly without a referral — this is the inflection point. Expand micro-farm to 600 homes.</div></div>
+      <div class="ml-item"><div class="ml-dot future"></div><div class="ml-period">Months 13–18 · Compete at the top</div><div class="ml-title">18–22 sales · 20+ reviews · Top 3 individual agent</div><div class="ml-desc">Vendors start calling you for the second appraisal. First referral listing from a past client.</div></div>
+      <div class="ml-item" style="margin-bottom:0"><div class="ml-dot future"></div><div class="ml-period">Months 19–24 · #1</div><div class="ml-title">25–30 sales · 30+ reviews · #1 individual agent</div><div class="ml-desc">Referrals exceed cold outreach. Community tags you in Facebook group. Brand is self-sustaining.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ INTEL ═══════════════════════ -->
+<div class="page" id="page-intel">
+  <div class="hero">
+    <div><div class="hero-title">Market Intelligence</div><div class="hero-sub">Edmondson Park NSW 2174 · 194 properties sold / year · 97 active agencies</div></div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val">$1.3M</div><div class="hstat-lbl">Median</div></div>
+      <div class="hstat"><div class="hstat-val">39</div><div class="hstat-lbl">Days on mkt</div></div>
+      <div class="hstat"><div class="hstat-val">~$26K</div><div class="hstat-lbl">GCI/sale</div></div>
+    </div>
+  </div>
+  <div class="g2 mb">
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot"></div>Suburb stats</div>
+      <div class="g2">
+        <div class="statbox"><div class="statbox-lbl">Median price</div><div class="statbox-val">$1.3M</div></div>
+        <div class="statbox"><div class="statbox-lbl">Annual growth</div><div class="statbox-val g">+4.2%</div></div>
+        <div class="statbox"><div class="statbox-lbl">10yr CAGR</div><div class="statbox-val g">9.0%</div></div>
+        <div class="statbox"><div class="statbox-lbl">Suburb turnover</div><div class="statbox-val a">~2.5%</div></div>
+        <div class="statbox"><div class="statbox-lbl">Sales / yr</div><div class="statbox-val w">194</div></div>
+        <div class="statbox"><div class="statbox-lbl">Median age</div><div class="statbox-val w">31</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-head"><div class="sec-dot g"></div>Your advantages</div>
+      <ul class="clist">
+        <li><div class="cbox" style="background:var(--green);border-color:var(--green)"><div style="position:absolute;left:4px;top:1px;width:5px;height:9px;border:2px solid var(--char);border-top:none;border-left:none;transform:rotate(45deg)"></div></div><span class="ctext">Urban RE brand in suburb — brokerage intro opens doors</span><span class="ctag t-green">Leverage</span></li>
+        <li><div class="cbox" style="background:var(--green);border-color:var(--green)"><div style="position:absolute;left:4px;top:1px;width:5px;height:9px;border:2px solid var(--char);border-top:none;border-left:none;transform:rotate(45deg)"></div></div><span class="ctext">Ausrealty has 249 sales but only 12 reviews — massive gap</span><span class="ctag t-pink">Reviews</span></li>
+        <li><div class="cbox" style="background:var(--green);border-color:var(--green)"><div style="position:absolute;left:4px;top:1px;width:5px;height:9px;border:2px solid var(--char);border-top:none;border-left:none;transform:rotate(45deg)"></div></div><span class="ctext">No agent owns the social/digital narrative — white space</span><span class="ctag t-pink">Content</span></li>
+        <li><div class="cbox" style="background:var(--green);border-color:var(--green)"><div style="position:absolute;left:4px;top:1px;width:5px;height:9px;border:2px solid var(--char);border-top:none;border-left:none;transform:rotate(45deg)"></div></div><span class="ctext">Multicultural demographic aligns with your background</span><span class="ctag t-blue">Fit</span></li>
+        <li><div class="cbox" style="background:var(--green);border-color:var(--green)"><div style="position:absolute;left:4px;top:1px;width:5px;height:9px;border:2px solid var(--char);border-top:none;border-left:none;transform:rotate(45deg)"></div></div><span class="ctext">Pondicherry Precinct — 4,200 new dwellings = future pipeline</span><span class="ctag t-amber">Growth</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card mb">
+    <div class="sec-head"><div class="sec-dot"></div>Competitor breakdown</div>
+    <div style="overflow-x:auto">
+      <table class="comp-table">
+        <thead><tr><th>Agency / agent</th><th>Sales</th><th>Reviews</th><th>Est. share</th><th>Your angle</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Ausrealty Macarthur</strong><br><span style="color:var(--ink3);font-size:10px">Ibrahim Merjan, Abdul Elmir</span></td><td><strong style="color:var(--red)">249</strong></td><td><strong style="color:var(--amber)">12</strong></td><td><span class="pill pill-red">~36%</span></td><td>Out-review them. 100% collection vs their 5% rate.</td></tr>
+          <tr><td><strong>Urban Real Estate</strong><br><span style="color:var(--ink3);font-size:10px">Your brokerage</span></td><td>~80</td><td>—</td><td><span class="pill pill-amber">~12%</span></td><td>Build Thomas Benyamin brand inside it. Take the reputation with you later.</td></tr>
+          <tr><td><strong>LJ Hooker / Prakash</strong></td><td>~25</td><td>High</td><td><span class="pill pill-gray">~5%</span></td><td>Out-content them on TikTok/Instagram.</td></tr>
+          <tr><td><strong>93 other agencies</strong></td><td>~40</td><td>Low</td><td><span class="pill pill-gray">~47%</span></td><td>Out-work all by showing up every day.</td></tr>
+          <tr class="you"><td><strong>Thomas Benyamin — You</strong></td><td>Target: 12</td><td>Target: 12</td><td><span class="pill pill-green">~8%</span></td><td>Reviews + content + appointments = #1 by month 24.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec-head"><div class="sec-dot a"></div>Micro-farm target streets — Ed Square / Willowdale pocket</div>
+    <div class="g3">
+      <div>
+        <div class="sec-head" style="margin-top:0"><div class="sec-dot w"></div>Primary streets</div>
+        <ul style="list-style:none;font-size:12px;color:var(--ink);line-height:2.1">
+          <li>📍 Soldiers Parade</li><li>📍 Gellibrand Road</li><li>📍 Croatia Avenue</li>
+          <li>📍 Passendale Road</li><li>📍 Vinny Road</li><li>📍 Tugela Rise</li>
+        </ul>
+      </div>
+      <div>
+        <div class="sec-head" style="margin-top:0"><div class="sec-dot w"></div>Secondary streets</div>
+        <ul style="list-style:none;font-size:12px;color:var(--ink);line-height:2.1">
+          <li>📍 Pearson Road</li><li>📍 Hoffman Road</li><li>📍 Catherine Park Drive</li>
+          <li>📍 Delbridge Road</li><li>📍 Buckingham Loop</li><li>📍 Buffalo Road</li>
+        </ul>
+      </div>
+      <div>
+        <div class="sec-head" style="margin-top:0"><div class="sec-dot g"></div>Farm cadence</div>
+        <div class="statbox mb" style="margin-bottom:6px"><div class="statbox-lbl">Year 1 farm size</div><div class="statbox-val">400 homes</div></div>
+        <div class="statbox mb" style="margin-bottom:6px"><div class="statbox-lbl">Expand to yr 2</div><div class="statbox-val w">600 homes</div></div>
+        <div style="font-size:11px;color:var(--ink3);line-height:1.8;margin-top:4px">
+          Letterbox: every 4 weeks<br>Door knock: every 12 weeks<br>Market update: every 8 weeks<br>Sold notification: within 24hrs
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════ STATE ═══════════════════════
+const KEY = 'ep_v4';
+let curDate = new Date();
+let editingApptId = null;
+let outcomeApptId = null;
+let selectedOutcome = null;
+
+function dateKey(d){ return d.toISOString().split('T')[0]; }
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch{ return {}; } }
+function save(s){ localStorage.setItem(KEY, JSON.stringify(s)); flash(); }
+
+function flash(){
+  const el = document.getElementById('save-flash');
+  if(!el) return;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 1500);
+}
+
+function fmtDate(d){ return d.toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}); }
+function fmtDay(d){ return d.toLocaleDateString('en-AU',{weekday:'long'}); }
+function fmtShort(d){ return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+// ═══════════════════════ TABS ═══════════════════════
+function switchTab(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page-'+name).classList.add('on');
+  btn.classList.add('on');
+  if(name==='weekly') renderWeekly();
+  if(name==='milestones') renderMilestones();
+  if(name==='appointments') renderApptTab();
+}
+
+// ═══════════════════════ DATE NAV ═══════════════════════
+function updateDateDisplay(){
+  const dStr = fmtDate(curDate);
+  document.getElementById('day-display').textContent = dStr;
+  document.getElementById('weekday-display').textContent = fmtDay(curDate);
+  document.getElementById('topbar-date').textContent = fmtDate(new Date());
+}
+function shiftDay(d){ curDate.setDate(curDate.getDate()+d); renderDaily(); }
+function jumpToday(){ curDate=new Date(); renderDaily(); }
+
+// ═══════════════════════ APPOINTMENTS CORE ═══════════════════════
+let selectedCat = 'MA';
+
+function selectCat(cat){
+  selectedCat = cat;
+  const ma = document.getElementById('cat-MA');
+  const la = document.getElementById('cat-LA');
+  if(cat==='MA'){
+    ma.style.cssText='flex:1;padding:10px;text-align:center;border-radius:var(--r-sm);border:2px solid var(--amber);background:var(--amber-dim);color:var(--amber);font-family:Bebas Neue,sans-serif;font-size:16px;cursor:pointer;letter-spacing:0.05em';
+    la.style.cssText='flex:1;padding:10px;text-align:center;border-radius:var(--r-sm);border:1px solid var(--char4);background:var(--char3);color:var(--ink3);font-family:Bebas Neue,sans-serif;font-size:16px;cursor:pointer;letter-spacing:0.05em';
+  } else {
+    la.style.cssText='flex:1;padding:10px;text-align:center;border-radius:var(--r-sm);border:2px solid var(--green);background:var(--green-dim);color:var(--green);font-family:Bebas Neue,sans-serif;font-size:16px;cursor:pointer;letter-spacing:0.05em';
+    ma.style.cssText='flex:1;padding:10px;text-align:center;border-radius:var(--r-sm);border:1px solid var(--char4);background:var(--char3);color:var(--ink3);font-family:Bebas Neue,sans-serif;font-size:16px;cursor:pointer;letter-spacing:0.05em';
+  }
+}
+
+function getAppts(){
+  const s = load();
+  return s['appts'] || [];
+}
+function saveAppts(arr){
+  const s = load();
+  s['appts'] = arr;
+  save(s);
+}
+
+function openModal(){
+  selectedCat = 'MA';
+  selectCat('MA');
+  document.getElementById('m-name').value='';
+  document.getElementById('m-phone').value='';
+  document.getElementById('m-type').value='appraisal';
+  document.getElementById('m-date').value = dateKey(curDate);
+  document.getElementById('m-time').value='';
+  document.getElementById('m-address').value='';
+  document.getElementById('m-notes').value='';
+  editingApptId = null;
+  document.getElementById('modal-title-text').textContent = 'New Appointment';
+  document.querySelector('#appt-modal .btn-save').textContent = 'Book Appointment';
+  document.getElementById('appt-modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('appt-modal').classList.remove('open'); }
+
+function saveAppt(){
+  const name = document.getElementById('m-name').value.trim();
+  if(!name){ document.getElementById('m-name').focus(); return; }
+  const appts = getAppts();
+  const apptDate = document.getElementById('m-date').value || dateKey(curDate);
+  const appt = {
+    id: editingApptId || uid(),
+    date: apptDate,
+    cat: selectedCat,
+    name,
+    phone: document.getElementById('m-phone').value.trim(),
+    type: document.getElementById('m-type').value,
+    time: document.getElementById('m-time').value,
+    address: document.getElementById('m-address').value.trim(),
+    notes: document.getElementById('m-notes').value.trim(),
+    completed: false,
+    outcome: null,
+    outcomeNotes: '',
+    followupDate: '',
+    created: Date.now()
+  };
+  if(editingApptId){
+    const idx = appts.findIndex(a=>a.id===editingApptId);
+    if(idx>-1){
+      appt.completed=appts[idx].completed;
+      appt.outcome=appts[idx].outcome;
+      appt.outcomeNotes=appts[idx].outcomeNotes;
+      appt.followupDate=appts[idx].followupDate;
+      appts[idx]=appt;
+    }
+  } else {
+    appts.push(appt);
+  }
+  saveAppts(appts);
+  closeModal();
+  // Update curDate to match the appointment date for rendering
+  curDate = new Date(apptDate + 'T12:00:00');
+  renderDaily();
+  if(document.getElementById('page-appointments').classList.contains('on')) renderApptTab();
+}
+
+function toggleApptComplete(id){
+  const appts = getAppts();
+  const a = appts.find(x=>x.id===id);
+  if(!a) return;
+  if(!a.completed){
+    // Open outcome modal
+    openOutcomeModal(id);
+  } else {
+    a.completed = false;
+    a.outcome = null;
+    a.outcomeNotes = '';
+    saveAppts(appts);
+    renderDailyAppts();
+    updateHeroStats(load()[dateKey(curDate)]||{});
+    if(document.getElementById('page-appointments').classList.contains('on')) renderApptTab();
+  }
+}
+
+function openOutcomeModal(id){
+  const appts = getAppts();
+  const a = appts.find(x=>x.id===id);
+  if(!a) return;
+  outcomeApptId = id;
+  selectedOutcome = a.outcome || null;
+  document.getElementById('outcome-appt-name').textContent = a.name + (a.type ? ' — '+typeLabel(a.type) : '');
+  document.getElementById('outcome-notes').value = a.outcomeNotes || '';
+  document.getElementById('outcome-followup-date').value = a.followupDate || '';
+  // Reset outcome options
+  document.querySelectorAll('.outcome-opt').forEach(o=>{
+    o.className = 'outcome-opt';
+    const v = o.getAttribute('onclick').match(/'([^']+)'/)[1];
+    if(v === selectedOutcome) o.className = `outcome-opt sel-${v}`;
+  });
+  document.getElementById('outcome-modal').classList.add('open');
+}
+function closeOutcomeModal(){ document.getElementById('outcome-modal').classList.remove('open'); outcomeApptId=null; selectedOutcome=null; }
+
+function selectOutcome(val, el){
+  selectedOutcome = val;
+  document.querySelectorAll('.outcome-opt').forEach(o=>o.className='outcome-opt');
+  el.className = `outcome-opt sel-${val}`;
+}
+
+function saveOutcome(){
+  if(!outcomeApptId) return;
+  const appts = getAppts();
+  const a = appts.find(x=>x.id===outcomeApptId);
+  if(!a) return;
+  a.completed = true;
+  a.outcome = selectedOutcome;
+  a.outcomeNotes = document.getElementById('outcome-notes').value.trim();
+  a.followupDate = document.getElementById('outcome-followup-date').value;
+  saveAppts(appts);
+  closeOutcomeModal();
+  renderDailyAppts();
+  updateHeroStats(load()[dateKey(curDate)]||{});
+  if(document.getElementById('page-appointments').classList.contains('on')) renderApptTab();
+}
+
+function deleteAppt(id){
+  // Find the appointment to show name in confirmation
+  const a = getAppts().find(x=>x.id===id);
+  const label = a ? a.name : 'this appointment';
+
+  // Show custom confirm modal
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+
+  overlay.innerHTML = `
+    <div style="background:#22242b;border:1px solid #ff4d6a;border-radius:12px;padding:24px;max-width:380px;width:92%;position:relative">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:#ff4d6a;border-radius:12px 12px 0 0"></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#ff4d6a;margin-bottom:10px;letter-spacing:0.03em">Cancel Appointment?</div>
+      <div style="font-size:13px;color:#a8aab8;line-height:1.5;margin-bottom:20px">
+        This will permanently remove <strong style="color:#e8e9ec">${label}</strong> from your tracker. This cannot be undone.
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="del-cancel-btn" style="flex:1;background:#2c2f38;border:1px solid #363944;color:#a8aab8;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;padding:10px 16px;border-radius:6px;cursor:pointer">Keep it</button>
+        <button id="del-confirm-btn" style="flex:1;background:#ff4d6a;border:none;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;padding:10px 16px;border-radius:6px;cursor:pointer">Yes, remove it</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById('del-cancel-btn').onclick = () => document.body.removeChild(overlay);
+  overlay.onclick = (e) => { if(e.target === overlay) document.body.removeChild(overlay); };
+
+  document.getElementById('del-confirm-btn').onclick = () => {
+    document.body.removeChild(overlay);
+    // Remove from storage
+    const updated = getAppts().filter(a => a.id !== id);
+    saveAppts(updated);
+    // Remove card from DOM immediately for instant feedback
+    const card = document.getElementById('appt-' + id);
+    if(card) card.remove();
+    // Re-render lists and counters
+    renderDailyAppts();
+    updateHeroStats(load()[dateKey(curDate)] || {});
+    if(document.getElementById('page-appointments').classList.contains('on')) renderApptTab();
+  };
+}
+
+function editAppt(id){
+  const a = getAppts().find(x=>x.id===id);
+  if(!a) return;
+  editingApptId = id;
+  selectedCat = a.cat || 'MA';
+  selectCat(selectedCat);
+  document.getElementById('m-name').value = a.name;
+  document.getElementById('m-phone').value = a.phone||'';
+  document.getElementById('m-type').value = a.type;
+  document.getElementById('m-date').value = a.date||dateKey(curDate);
+  document.getElementById('m-time').value = a.time||'';
+  document.getElementById('m-address').value = a.address||'';
+  document.getElementById('m-notes').value = a.notes||'';
+  document.getElementById('modal-title-text').textContent = 'Edit Appointment';
+  document.querySelector('#appt-modal .btn-save').textContent = 'Save Changes';
+  document.getElementById('appt-modal').classList.add('open');
+}
+
+function typeLabel(t){
+  const m = {appraisal:'Market Appraisal',listing:'Listing Pres.',followup:'Follow-up',open:'Open Home',other:'Other'};
+  return m[t]||t;
+}
+function typeClass(t){ return 'type-'+t; }
+
+function buildCalendarUrl(a){
+  // Title: MA/LA — Name — Number
+  const cat = a.cat || 'MA';
+  const phone = a.phone ? ` — ${a.phone}` : '';
+  const title = encodeURIComponent(`${cat} — ${a.name}${phone}`);
+  const loc = encodeURIComponent(a.address||'');
+
+  // Build description
+  const typeStr = typeLabel(a.type);
+  const notesStr = a.notes ? `\n\nNotes:\n${a.notes}` : '';
+  const desc = encodeURIComponent(`Appointment Type: ${typeStr}\nAgent: Thomas Benyamin — Urban Real Estate${notesStr}`);
+
+  // Date + time
+  let dates = '';
+  if(a.date && a.time){
+    const d = a.date.replace(/-/g,'');
+    const [hh,mm] = a.time.split(':');
+    const start = `${d}T${hh}${mm}00`;
+    // Default 1 hour
+    const endHH = String(parseInt(hh)+1).padStart(2,'0');
+    const end = `${d}T${endHH}${mm}00`;
+    dates = `${start}/${end}`;
+  } else if(a.date){
+    const d = a.date.replace(/-/g,'');
+    dates = `${d}/${d}`;
+  }
+
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&location=${loc}&details=${desc}`;
+}
+
+// ─── SMS + QR ──────────────────────────────────────────────────
+let _smsPhone = '';
+let _qrInstance = null;
+
+function buildSmsUrl(phone, msg){
+  const clean = phone.replace(/[\s\-\(\)]/g,'');
+  const ua = navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(ua);
+  const isMac = /macintosh|mac os x/.test(ua) && !/iphone|ipad/.test(ua);
+  // iOS/Mac: &body=  |  Android/other: ?body=
+  const sep = (isIOS || isMac) ? '&' : '?';
+  return `sms:${clean}${sep}body=${encodeURIComponent(msg)}`;
+}
+
+function refreshQr(){
+  const phone = _smsPhone;
+  const msg = document.getElementById('sms-copy-body').value;
+  if(!phone || phone.includes('No number')) return;
+
+  const smsUrl = buildSmsUrl(phone, msg);
+  const container = document.getElementById('qr-container');
+
+  // Clear previous
+  container.innerHTML = '<canvas id="qr-canvas"></canvas>';
+
+  try {
+    new QRCode(container, {
+      text: smsUrl,
+      width: 160,
+      height: 160,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch(e){
+    // Fallback: use Google Charts API for QR
+    const enc = encodeURIComponent(smsUrl);
+    container.innerHTML = `<img src="https://chart.googleapis.com/chart?chs=160x160&cht=qr&chl=${enc}&choe=UTF-8" width="160" height="160" alt="QR Code">`;
+  }
+}
+
+function copySmsMessage(){
+  const ta = document.getElementById('sms-copy-body');
+  const btn = document.getElementById('copy-msg-btn');
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  const text = ta.value;
+  const reset = ()=>{ btn.textContent = '📋 Copy Message'; btn.style.background = '#00d68f'; };
+  const done = ()=>{ btn.textContent = '✓ Copied!'; btn.style.background = '#065f46'; setTimeout(reset, 2500); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>{ document.execCommand('copy'); done(); });
+  } else {
+    document.execCommand('copy'); done();
+  }
+}
+
+function copySmsNumber(){
+  const num = document.getElementById('sms-copy-number').textContent.trim();
+  const btn = document.getElementById('copy-num-btn');
+  const done = ()=>{ btn.textContent = '✓ Copied!'; setTimeout(()=>{ btn.textContent = 'Copy number'; }, 2000); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(num).then(done).catch(()=>{
+      const tmp = document.createElement('input'); tmp.value = num;
+      document.body.appendChild(tmp); tmp.select(); document.execCommand('copy');
+      document.body.removeChild(tmp); done();
+    });
+  } else {
+    const tmp = document.createElement('input'); tmp.value = num;
+    document.body.appendChild(tmp); tmp.select(); document.execCommand('copy');
+    document.body.removeChild(tmp); done();
+  }
+}
+
+function openSmsApp(){
+  const btn = document.getElementById('sms-open-btn');
+  const phone = _smsPhone;
+  const msg = document.getElementById('sms-copy-body').value;
+
+  if(!phone || phone.includes('No number')){
+    btn.textContent = '⚠️ No number — edit appointment';
+    btn.style.borderColor = '#ff4d6a'; btn.style.color = '#ff4d6a';
+    setTimeout(()=>{ btn.textContent = '📱 Open on this device'; btn.style.borderColor = '#00d68f'; btn.style.color = '#00d68f'; }, 2500);
+    return;
+  }
+
+  const smsUrl = buildSmsUrl(phone, msg);
+  window.location.href = smsUrl;
+
+  btn.textContent = '✓ Opening...';
+  btn.style.background = 'var(--green-dim)';
+  setTimeout(()=>{ btn.textContent = '📱 Open on this device'; btn.style.background = 'var(--char3)'; }, 3000);
+}
+
+function sendThankYouSMS(phone, name, apptDay, apptDate, apptTime){
+  const dayDate = (apptDay && apptDate) ? `${apptDay} ${apptDate}` : '(date TBC)';
+  const time = apptTime || '(time TBC)';
+
+  const msg = `Hey ${name},
+
+Thanks for talking with me in regards to your property.
+
+I am looking forward to meeting you on ${dayDate} at ${time}, however if you need to reschedule feel free to contact me on 0494 341 278 or email me at T.Benyamin@urbanrealestate.com.au
+
+Warm regards
+Thomas Benyamin
+Urban Real Estate`;
+
+  _smsPhone = phone || '';
+
+  // Populate modal
+  document.getElementById('sms-copy-number').textContent = phone || 'No number saved — edit appointment to add one';
+  document.getElementById('sms-copy-body').value = msg;
+
+  // Reset buttons
+  const copyBtn = document.getElementById('copy-msg-btn');
+  copyBtn.textContent = '📋 Copy Message'; copyBtn.style.background = '#00d68f';
+  const openBtn = document.getElementById('sms-open-btn');
+  openBtn.textContent = '📱 Open on this device';
+  openBtn.style.background = 'var(--char3)'; openBtn.style.borderColor = '#00d68f'; openBtn.style.color = '#00d68f';
+
+  // Show modal
+  document.getElementById('sms-copy-modal').classList.add('open');
+
+  // Draw QR after modal is visible
+  setTimeout(refreshQr, 50);
+}
+
+function buildApptCard(a, showDate=false){
+  const cat = a.cat || 'MA';
+  const catPill = `<span class="appt-cat-pill appt-cat-${cat}">${cat}</span>`;
+  const timeStr = a.time ? `<span class="appt-pill time">${a.time}</span>` : '';
+  const typeStr = `<span class="appt-pill ${typeClass(a.type)}">${typeLabel(a.type)}</span>`;
+  const dateStr = showDate ? `<span class="appt-pill" style="background:var(--char4);color:var(--ink2)">${a.date}</span>` : '';
+  const phoneStr = a.phone ? `<span class="appt-pill" style="background:var(--char4);color:var(--ink2);font-family:'DM Mono',monospace">${a.phone}</span>` : '';
+  let outcomeStr = '';
+  if(a.completed && a.outcome){
+    const ol = {win:'🏆 Won listing',followup:'🔄 Follow-up',lost:'❌ Lost',pending:'⏳ Pending'};
+    outcomeStr = `<span class="appt-pill outcome-${a.outcome}">${ol[a.outcome]||a.outcome}</span>`;
+  }
+  const noteStr = a.notes ? `<div class="appt-note">${a.notes}</div>` : '';
+  const outcomeNoteStr = a.outcomeNotes ? `<div class="appt-note" style="color:var(--green)">${a.outcomeNotes}</div>` : '';
+  const followupStr = a.followupDate ? `<div class="appt-note" style="color:var(--amber)">📅 Follow-up: ${a.followupDate}</div>` : '';
+
+  const calUrl = buildCalendarUrl(a);
+  const phoneEsc = (a.phone||'').replace(/'/g,"\\'");
+  const nameEsc = (a.name||'').replace(/'/g,"\\'");
+
+  // Build day + date string from appointment date field
+  let apptDay = '', apptDateStr = '', apptTimeStr = a.time||'';
+  if(a.date){
+    const d = new Date(a.date + 'T12:00:00');
+    apptDay = d.toLocaleDateString('en-AU',{weekday:'long'});
+    apptDateStr = d.toLocaleDateString('en-AU',{day:'numeric',month:'long'});
+  }
+  // Format time to 12-hour
+  if(a.time){
+    const [hh,mm] = a.time.split(':');
+    const h = parseInt(hh);
+    apptTimeStr = `${h > 12 ? h-12 : h || 12}:${mm}${h >= 12 ? 'pm' : 'am'}`;
+  }
+
+  return `
+  <div class="appt-item ${a.completed?'completed-appt':''}" id="appt-${a.id}">
+    <div class="appt-check ${a.completed?'done':''}" onclick="toggleApptComplete('${a.id}')" title="${a.completed?'Mark incomplete':'Mark complete'}">
+      ${a.completed?'✓':''}
+    </div>
+    <div class="appt-body">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+        ${catPill}
+        <span class="appt-name">${a.name}</span>
+      </div>
+      ${a.address?`<div style="font-size:10px;color:var(--ink3);margin-bottom:2px">📍 ${a.address}</div>`:''}
+      <div class="appt-meta">${typeStr}${timeStr}${phoneStr}${dateStr}${outcomeStr}</div>
+      ${noteStr}${outcomeNoteStr}${followupStr}
+      <div class="action-bar">
+        <a href="${calUrl}" target="_blank" class="action-btn-wide action-btn-cal" title="Open in Google Calendar">
+          📅 Add to Google Calendar
+        </a>
+        <button class="action-btn-wide action-btn-sms" onclick="sendThankYouSMS('${phoneEsc}','${nameEsc}','${apptDay}','${apptDateStr}','${apptTimeStr}')" title="Send thank you SMS">
+          💬 Send Thank You SMS
+        </button>
+      </div>
+    </div>
+    <div class="appt-actions">
+      <button class="appt-action-btn edit-btn" onclick="editAppt('${a.id}')" title="Edit">✎</button>
+      <button class="appt-action-btn del" onclick="deleteAppt('${a.id}')" title="Delete">✕</button>
+    </div>
+  </div>`;
+}
+
+function renderDailyAppts(){
+  const key = dateKey(curDate);
+  const dayAppts = getAppts().filter(a=>a.date===key).sort((a,b)=>a.time>b.time?1:-1);
+  const booked = dayAppts.length;
+  const done = dayAppts.filter(a=>a.completed).length;
+  const ratio = booked>0?Math.round((done/booked)*100):0;
+
+  document.getElementById('d-appt-booked').textContent = booked;
+  document.getElementById('d-appt-done').textContent = done;
+  document.getElementById('d-appt-ratio').textContent = ratio+'%';
+  // Hero
+  document.getElementById('h-appts-booked').textContent = booked;
+  document.getElementById('h-appts-done').textContent = done;
+
+  const el = document.getElementById('daily-appt-list');
+  if(!dayAppts.length){
+    el.innerHTML = '<div class="appt-empty">No appointments booked yet today.<br>Click <strong>+ Book Appointment</strong> to add one.</div>';
+    return;
+  }
+  el.innerHTML = dayAppts.map(a=>buildApptCard(a)).join('');
+}
+
+function renderApptTab(){
+  const allAppts = getAppts();
+  const typeF = document.getElementById('filter-type').value;
+  const statusF = document.getElementById('filter-status').value;
+
+  let filtered = allAppts;
+  if(typeF!=='all') filtered = filtered.filter(a=>a.type===typeF);
+  if(statusF!=='all'){
+    if(statusF==='pending') filtered=filtered.filter(a=>!a.completed);
+    else if(statusF==='done') filtered=filtered.filter(a=>a.completed);
+    else if(statusF==='win') filtered=filtered.filter(a=>a.outcome==='win');
+    else if(statusF==='followup') filtered=filtered.filter(a=>a.outcome==='followup');
+    else if(statusF==='lost') filtered=filtered.filter(a=>a.outcome==='lost');
+  }
+  filtered.sort((a,b)=>b.created-a.created);
+
+  const all = allAppts;
+  const booked = all.length;
+  const done = all.filter(a=>a.completed).length;
+  const wins = all.filter(a=>a.outcome==='win').length;
+  const pending = all.filter(a=>!a.completed).length;
+  const rate = booked>0?Math.round((done/booked)*100):0;
+
+  document.getElementById('all-booked').textContent = booked;
+  document.getElementById('all-done').textContent = done;
+  document.getElementById('all-rate').textContent = rate+'%';
+  document.getElementById('all-wins').textContent = wins;
+  document.getElementById('all-pending').textContent = pending;
+  document.getElementById('appt-count-label').textContent = `— showing ${filtered.length} of ${booked}`;
+
+  // Outcome bars
+  const outcomes = {win:0,followup:0,lost:0,pending_o:0,none:0};
+  all.forEach(a=>{
+    if(!a.completed) outcomes.none++;
+    else if(a.outcome==='win') outcomes.win++;
+    else if(a.outcome==='followup') outcomes.followup++;
+    else if(a.outcome==='lost') outcomes.lost++;
+    else outcomes.pending_o++;
+  });
+  const ob = document.getElementById('appt-outcome-bars');
+  ob.innerHTML = [
+    {l:'Won listings',v:outcomes.win,t:booked,c:'g'},
+    {l:'Follow-up needed',v:outcomes.followup,t:booked,c:'a'},
+    {l:'Lost / no go',v:outcomes.lost,t:booked,c:''},
+    {l:'Pending decision',v:outcomes.pending_o,t:booked,c:'p'},
+    {l:'Not yet completed',v:outcomes.none,t:booked,c:''},
+  ].map(b=>{
+    const pct=b.t>0?Math.min(100,Math.round((b.v/b.t)*100)):0;
+    return `<div class="prog-row"><span class="prog-lbl">${b.l}</span><div class="prog-track"><div class="prog-fill ${b.c}" style="width:${pct}%"></div></div><span class="prog-count">${b.v}/${b.t}</span></div>`;
+  }).join('');
+
+  const el = document.getElementById('all-appt-list');
+  if(!filtered.length){
+    el.innerHTML = '<div class="appt-empty">No appointments match the current filter.</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(a=>buildApptCard(a,true)).join('');
+}
+
+// ═══════════════════════ DAILY RENDER ═══════════════════════
+function renderDaily(){
+  updateDateDisplay();
+  const s = load();
+  const k = dateKey(curDate);
+  const day = s[k]||{};
+
+  ['calls','crm','sms','reports','appraisals','listings','doors','drops'].forEach(id=>{
+    const el=document.getElementById(id+'-val'); if(el) el.value=day[id]||0;
+  });
+  ['morning','admin','midday','buyers','eod'].forEach(name=>{
+    const ul=document.getElementById('cl-'+name); if(!ul) return;
+    const saved=day['cl_'+name]||[];
+    ul.querySelectorAll('li').forEach((li,i)=>li.classList.toggle('done',!!saved[i]));
+  });
+  const bc=document.getElementById('best-call'); if(bc) bc.value=day.best_call||'';
+  const dn=document.getElementById('daily-notes'); if(dn) dn.value=day.notes||'';
+  const t3=document.getElementById('tomorrow-3'); if(t3) t3.value=day.tomorrow||'';
+
+  renderDailyAppts();
+  updateHeroStats(day);
+}
+
+function updateHeroStats(day){
+  document.getElementById('h-calls').textContent = day.calls||0;
+  document.getElementById('h-doors').textContent = day.doors||0;
+  document.getElementById('h-sms').textContent = day.sms||0;
+  document.getElementById('h-reports').textContent = day.reports||0;
+  document.getElementById('h-appraisals').textContent = day.appraisals||0;
+  document.getElementById('h-listings').textContent = day.listings||0;
+  // Appointment stats updated in renderDailyAppts
+}
+
+function tick(li){ li.classList.toggle('done'); persist(); }
+function step(id, delta){
+  const el=document.getElementById(id+'-val');
+  const v=Math.max(0,parseInt(el.value||0)+delta);
+  el.value=v; persist();
+  const s=load(); updateHeroStats(s[dateKey(curDate)]||{});
+}
+function persist(){
+  const s=load(); const k=dateKey(curDate); const day=s[k]||{};
+  ['calls','crm','sms','reports','appraisals','listings','doors','drops'].forEach(id=>{
+    const el=document.getElementById(id+'-val'); if(el) day[id]=parseInt(el.value)||0;
+  });
+  ['morning','admin','midday','buyers','eod'].forEach(name=>{
+    const ul=document.getElementById('cl-'+name); if(!ul) return;
+    day['cl_'+name]=Array.from(ul.querySelectorAll('li')).map(li=>li.classList.contains('done'));
+  });
+  const bc=document.getElementById('best-call'); if(bc) day.best_call=bc.value;
+  const dn=document.getElementById('daily-notes'); if(dn) day.notes=dn.value;
+  const t3=document.getElementById('tomorrow-3'); if(t3) day.tomorrow=t3.value;
+  s[k]=day; save(s);
+  updateHeroStats(day);
+}
+
+// ═══════════════════════ WEEKLY ═══════════════════════
+function getWeekDays(d){
+  const day=d.getDay(); const mon=new Date(d);
+  mon.setDate(d.getDate()-(day===0?6:day-1));
+  return Array.from({length:5},(_,i)=>{ const dd=new Date(mon); dd.setDate(mon.getDate()+i); return dd; });
+}
+function renderWeekly(){
+  const days=getWeekDays(new Date());
+  const s=load(); const todayKey=dateKey(new Date());
+  const dayNames=['MON','TUE','WED','THU','FRI'];
+  document.getElementById('week-range').textContent = fmtShort(days[0])+' – '+fmtShort(days[4])+' '+days[4].getFullYear();
+
+  const allAppts = getAppts();
+
+  const kpis=[
+    {key:'calls',label:'Prospecting calls',target:20,wt:100},
+    {key:'doors',label:'Door knocks',target:25,wt:100},
+    {key:'sms',label:'SMS sent',target:10,wt:50,color:'#00c9b1'},
+    {key:'reports',label:'Reports sent',target:3,wt:15,color:'#f59e0b'},
+    {key:'appraisals',label:'Appraisals',target:2,wt:10},
+    {key:'crm',label:'CRM contacts',target:5,wt:25},
+    {key:'drops',label:'Letterbox drops',target:20,wt:100},
+    {key:'listings',label:'Listing presentations',target:1,wt:5},
+  ];
+
+  const dayNames2=['MON','TUE','WED','THU','FRI'];
+  const thead=document.getElementById('wk-head');
+  thead.innerHTML='<tr><th style="width:150px">KPI</th>'+
+    days.map((d,i)=>`<th class="${dateKey(d)===todayKey?'today':''}">${dayNames2[i]}<br><span style="font-size:8px;color:var(--ink3)">${fmtShort(d)}</span></th>`).join('')+
+    '<th style="color:var(--green)">TOTAL</th><th style="color:var(--ink3)">TARGET</th></tr>';
+
+  let totCalls=0,totDoors=0,totSms=0,totReports=0,totApptBooked=0,totApptDone=0,totAppr=0;
+  const tbody=document.getElementById('wk-body');
+  tbody.innerHTML=kpis.map(kpi=>{
+    let wkTotal=0;
+    const cells=days.map(d=>{
+      const dk=dateKey(d);
+      const val=(s[dk]||{})[kpi.key]||0;
+      wkTotal+=val;
+      const pct=Math.min(100,Math.round((val/kpi.target)*100));
+      const isT=dk===todayKey;
+      const valStyle=kpi.color?`style="color:${kpi.color}"`:'';
+      return `<td class="${isT?'today-cell':''}"><div class="wk-val" ${valStyle}>${val}</div><div class="wk-mini"><div class="wk-mini-fill" style="width:${pct}%;${kpi.color?`background:${kpi.color}`:''}"></div></div></td>`;
+    }).join('');
+    if(kpi.key==='calls') totCalls=wkTotal;
+    if(kpi.key==='doors') totDoors=wkTotal;
+    if(kpi.key==='sms') totSms=wkTotal;
+    if(kpi.key==='reports') totReports=wkTotal;
+    if(kpi.key==='appraisals') totAppr=wkTotal;
+    const totalStyle=kpi.color?`style="color:${kpi.color}"`:'';
+    return `<tr><td><div class="row-name" ${totalStyle}>${kpi.label}</div><div class="row-target">Daily: ${kpi.target}</div></td>${cells}<td><div class="wk-total" ${totalStyle}>${wkTotal}</div></td><td style="color:var(--ink3);font-size:10px">${kpi.wt}/wk</td></tr>`;
+  }).join('');
+
+  // Add appointment rows
+  days.forEach(d=>{ const dk=dateKey(d); const da=allAppts.filter(a=>a.date===dk); totApptBooked+=da.length; totApptDone+=da.filter(a=>a.completed).length; });
+  const apptBookedCells = days.map(d=>{ const dk=dateKey(d); const v=allAppts.filter(a=>a.date===dk).length; const isT=dk===todayKey; return `<td class="${isT?'today-cell':''}"><div class="wk-val" style="color:var(--amber)">${v}</div></td>`; }).join('');
+  const apptDoneCells = days.map(d=>{ const dk=dateKey(d); const v=allAppts.filter(a=>a.date===dk&&a.completed).length; const isT=dk===todayKey; return `<td class="${isT?'today-cell':''}"><div class="wk-val" style="color:var(--green)">${v}</div></td>`; }).join('');
+  tbody.innerHTML += `<tr style="border-top:1px solid var(--char4)"><td><div class="row-name" style="color:var(--amber)">Appts booked</div><div class="row-target">Daily: 2+</div></td>${apptBookedCells}<td><div class="wk-total" style="color:var(--amber)">${totApptBooked}</div></td><td style="color:var(--ink3);font-size:10px">10/wk</td></tr>`;
+  tbody.innerHTML += `<tr><td><div class="row-name" style="color:var(--green)">Appts completed</div><div class="row-target">Daily: 2+</div></td>${apptDoneCells}<td><div class="wk-total">${totApptDone}</div></td><td style="color:var(--ink3);font-size:10px">8/wk</td></tr>`;
+
+  const compRate = totApptBooked>0?Math.round((totApptDone/totApptBooked)*100):0;
+  document.getElementById('w-calls').textContent=totCalls;
+  document.getElementById('w-doors').textContent=totDoors;
+  document.getElementById('w-sms').textContent=totSms;
+  document.getElementById('w-reports').textContent=totReports;
+  document.getElementById('w-appts-booked').textContent=totApptBooked;
+  document.getElementById('w-appts-done').textContent=totApptDone;
+  document.getElementById('w-comp-rate').textContent=compRate+'%';
+
+  const targets=[
+    {l:'Calls (target 100)',v:totCalls,max:100,c:''},
+    {l:'Doors (target 100)',v:totDoors,max:100,c:''},
+    {l:'SMS sent (target 50)',v:totSms,max:50,c:'',hex:'#00c9b1'},
+    {l:'Reports sent (target 15)',v:totReports,max:15,c:'',hex:'#f59e0b'},
+    {l:'Appts booked (target 10)',v:totApptBooked,max:10,c:'a'},
+    {l:'Appts completed (target 8)',v:totApptDone,max:8,c:'g'},
+    {l:'Appraisals (target 10)',v:totAppr,max:10,c:''},
+  ];
+  document.getElementById('weekly-prog-bars').innerHTML=targets.map(t=>{
+    const pct=Math.min(100,Math.round((t.v/t.max)*100));
+    const col=t.hex?t.hex:pct>=100?'var(--green)':pct>=60?'var(--amber)':'var(--pink)';
+    const fillStyle=t.hex?`background:${t.hex}`:pct>=100?'background:var(--green)':pct>=60?'background:var(--amber)':'';
+    const valStyle=t.hex?`color:${t.hex}`:'';
+    return `<div class="prog-row"><span class="prog-lbl">${t.l}</span><div class="prog-track"><div class="prog-fill ${t.c}" style="width:${pct}%;${fillStyle}"></div></div><span class="prog-count" style="${valStyle}">${t.v}/${t.max}</span></div>`;
+  }).join('');
+
+  const wkKey='wkcl_'+dateKey(days[0]);
+  const wks=load()[wkKey]||{};
+  const ul=document.getElementById('cl-weekly');
+  if(ul) ul.querySelectorAll('li').forEach((li,i)=>{
+    li.classList.toggle('done',!!wks[i]);
+    li.onclick=()=>{ li.classList.toggle('done'); const s2=load(); s2[wkKey]=s2[wkKey]||{}; s2[wkKey][i]=li.classList.contains('done'); save(s2); };
+  });
+  const wkNoteKey='wknotes_'+dateKey(days[0]);
+  const wkn=load()[wkNoteKey]||{};
+  const ww=document.getElementById('wk-win'); if(ww) ww.value=wkn.win||'';
+  const wf=document.getElementById('wk-fix'); if(wf) wf.value=wkn.fix||'';
+  if(ww) ww.oninput=()=>{ const s2=load(); s2[wkNoteKey]={win:ww.value,fix:wf?wf.value:''}; save(s2); };
+  if(wf) wf.oninput=()=>{ const s2=load(); s2[wkNoteKey]={win:ww?ww.value:'',fix:wf.value}; save(s2); };
+}
+
+function wkTick(li,idx){
+  // handled in renderWeekly
+}
+
+// ═══════════════════════ MILESTONES ═══════════════════════
+function msStep(key,delta){
+  const s=load(); s['ms_'+key]=Math.max(0,(s['ms_'+key]||0)+delta); save(s); renderMilestones();
+}
+function msRank(v){
+  const s=load(); s['ms_rank']=v; save(s);
+  document.getElementById('ms-rank-v').textContent=v||'—';
+  document.getElementById('ms-rank-disp').textContent=v||'—';
+}
+function renderMilestones(){
+  const s=load();
+  const sales=s['ms_sales']||0; const reviews=s['ms_reviews']||0; const app=s['ms_app']||0; const rank=s['ms_rank']||'—';
+  ['sales','reviews','app'].forEach(k=>{ const v=s['ms_'+k]||0; const el=document.getElementById('ms-'+k+'-v'); const d=document.getElementById('ms-'+k+'-d'); if(el) el.textContent=v; if(d) d.textContent=v; });
+  document.getElementById('ms-rank-v').textContent=rank;
+  document.getElementById('ms-sales-disp').textContent=sales;
+  document.getElementById('ms-reviews-disp').textContent=reviews;
+  document.getElementById('ms-rank-disp').textContent=rank;
+  const ri=document.getElementById('ms-rank-input'); if(ri&&!ri.value) ri.value=rank==='—'?'':rank;
+  const gaps=[
+    {l:'Ausrealty Macarthur',max:249,c:''},
+    {l:'Urban Real Estate (~80)',max:80,c:'g'},
+    {l:'LJ Hooker / Prakash (~25)',max:25,c:'a'},
+    {l:'Year 1 target (12 sales)',max:12,c:'g'},
+    {l:'#1 agent benchmark (30)',max:30,c:''},
+  ];
+  document.getElementById('gap-bars').innerHTML=gaps.map(g=>{
+    const pct=Math.min(100,Math.round((sales/g.max)*100));
+    return `<div class="prog-row"><span class="prog-lbl">${g.l}</span><div class="prog-track"><div class="prog-fill ${g.c}" style="width:${pct}%"></div></div><span class="prog-count">${sales}/${g.max}</span></div>`;
+  }).join('');
+}
+
+// ═══════════════════════ INIT ═══════════════════════
+updateDateDisplay();
+renderDaily();
+renderMilestones();
+</script>
+</body>
+</html>
