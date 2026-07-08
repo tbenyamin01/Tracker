@@ -176,17 +176,17 @@ const PIPE_STAGES = ["DM sent","Follow-up 1","Follow-up 2","Call booked","Propos
 
 // ---- Cold scripts by trade. Placeholders: {first} {biz} {suburb} {reviews} {trade} ----
 const COLD = {
-"Plumbing": "Hey {first}, Thomas here from VisionSphere. Found {biz} on Google Maps searching for a plumber {area}. Here's the thing, when someone's got a burst pipe they call the first plumber they can actually check out. No website means they scroll straight past you to one they can.\n\nI build plumber websites for a fixed price, live in a week. Want a look at an example? Reply no and I won't message again.",
-"Electrical": "Hey {first}, Thomas from VisionSphere. Found your listing on Google Maps looking for an electrician {area}. You've got {revphrase}, but no website. People hiring a sparky want to see your licence, your work and your services before they call, and right now there's nowhere for them to look.\n\nI build electrician sites for a fixed price, live in a week. Want an example? Reply no if it's not for you.",
-"Beauty Clinic": "Hi {first}, Thomas from VisionSphere. Came across {biz} on Google Maps and your work looks great, but there's no website. Clients booking beauty treatments want to see your services, prices and results before they commit, and if they can't, they book the clinic where they can.\n\nI build clean beauty clinic sites with online booking built in. Fixed price, live in a week. Want an example? Reply no and that's the last you'll hear from me.",
-"Dog Grooming": "Hey {first}, Thomas here from VisionSphere. Found {biz} on Google Maps looking for dog groomers {area}. Dog owners are fussy about who touches their dog, they want to see your setup, prices and happy customers before booking. With no website, you're losing them to groomers who show all that.\n\nI build simple grooming sites with online booking. Fixed price, done in a week. Want a look? Reply no and I'll leave you be.",
-"Other Trades": "Hey {first}, Thomas from VisionSphere. Found {biz} on Google Maps searching for a {trade} {area}. Bigger jobs mean people do their homework, and homework means checking your website. No site puts you last on the shortlist even if you're the best on it.\n\nI build tradie websites for a fixed price, live in a week. Want an example? Reply no if it's not for you.",
-"Other": "Hey {first}, Thomas here from VisionSphere. Found {biz} on Google Maps and noticed there's no website for people to click, so most of them move on to a local business that has one.\n\nI build simple sites for local businesses. Fixed price, live in a week. Want me to send an example? If not, reply no and I won't message again."
+"Plumbing": "Hey {first}, Thomas from VisionSphere here. Found {biz} on Google Maps. You've got a solid position on Maps to be seen, but no website, so locals can't check you out before calling and ring someone else instead.\n\nI build websites for local plumbers for a flat fee and I'd love to help you win those jobs. I've just made the landing page for you, keen to see it? If not, reply no and I won't message again.",
+"Electrical": "Hey {first}, Thomas from VisionSphere here. Came across {biz} on Google Maps. You've got a solid position on Maps to be seen, but with no website people can't check out your work before calling.\n\nI build websites for local sparkies for a flat fee and I'd love to help you win those jobs. I've just made the landing page for you, keen to see it? If not, reply no and I won't message again.",
+"Beauty Clinic": "Hi {first}, Thomas from VisionSphere here. Came across {biz} on Google Maps. You've got a solid position on Maps to be seen, but clients love checking services, prices and results before booking, and with no website they book where they can.\n\nI build websites for local clinics for a flat fee and I'd love to help you fill more appointments. I've just made the landing page for you, keen to see it? If not, reply no and I won't message again.",
+"Dog Grooming": "Hi {first}, Thomas from VisionSphere here. Found {biz} on Google Maps. You've got a solid position on Maps to be seen, but dog owners love checking out a groomer before booking, and there's no website showing off your work.\n\nI build websites for local groomers for a flat fee and I'd love to help more owners find you. I've just made the landing page for you, keen to see it? If not, reply no and I won't message again.",
+"Other Trades": "Hey {first}, Thomas from VisionSphere here. Found {biz} on Google Maps. You've got a solid position on Maps to be seen, but on bigger jobs people do their homework, and with no website you're getting skipped.\n\nI build websites for local trades for a flat fee and I'd love to help you win those jobs. I've just made the landing page for you, keen to see it? If not, reply no and I won't message again.",
+"Other": "Hey {first}, Thomas from VisionSphere here. Found {biz} on Google Maps. You've got a solid position on Maps to be seen, but with no website locals can't find out more about you, so many move on.\n\nI build websites for local businesses for a flat fee and I'd love to help you turn those searches into customers. I've just made the landing page for you, keen to see it? If not, reply no and I won't message again."
 };
 const FOLLOWUPS = {
-"DM sent": {label:"Send follow-up 1", next:"Follow-up 1", text:"Hey {first}, Thomas from VisionSphere again. Just bumping this in case it got buried, I know business owners get slammed.\n\nStill happy to send over an example of what a site for {biz} would look like. Takes you 30 seconds to look at. No pressure either way."},
-"Follow-up 1": {label:"Send follow-up 2", next:"Follow-up 2", text:"Hey {first}, last week I mentioned building a site for {biz}. Just finished one for a {trade} nearby: [link]\n\nThat's the standard of what you'd get, live within a week of saying yes. Worth a 10 minute call?"},
-"Follow-up 2": {label:"Send final msg", next:"Dead", text:"Hey {first}, last message from me, promise. If a website isn't a priority right now, completely fair, and I'll close your file.\n\nIf it is, I've got one build slot open next week. First come first served. Either way, all the best with {biz}."},
+"DM sent": {label:"Send follow-up 1", next:"Follow-up 1", text:"Hey {first}, Thomas from VisionSphere again, just bumping this in case it got buried. That landing page for {biz} is ready whenever you want a look, takes 30 seconds. No pressure either way."},
+"Follow-up 1": {label:"Send follow-up 2", next:"Follow-up 2", text:"Hey {first}, here's one I recently built for a local business: [link]\n\nYours would be the same standard, live within a week. Worth a quick 10 minute chat?"},
+"Follow-up 2": {label:"Send final msg", next:"Dead", text:"Hey {first}, last message from me, promise. If a website isn't a priority right now, all good and I'll close your file. If it is, I've got one build slot open next week. Either way, all the best with {biz}."},
 "Live": {label:"Send review ask", next:"Review asked", text:"Hey {first}, week one with the new site done. Two quick things:\n\n1. Would you mind leaving a Google review? Takes 60 seconds and helps me massively.\n2. Know anyone else whose website needs sorting? I'll look after them."}
 };
 const RESPONSES = [
@@ -416,17 +416,73 @@ RAW.forEach(s=>{
 
 // ---- Seeded leads (imported from your Google Sheet). Merged by phone number, never duplicated ----
 const SEED = [
-  {biz:"Plumbing Worx Enterprise PTY LTD", first:"", phone:"0451 017 538"},
-  {biz:"Reidh's Plumbing Service", first:"Reidha", phone:"0431 243 177"},
-  {biz:"Mario Bros Plumbing", first:"Mario", phone:"0414 982 674"},
-  {biz:"Xclussive Plumbing Sydney", first:"David", phone:"0414 470 809"},
-  {biz:"Incom Plumbing & Civil", first:"Nathan", phone:"0425 396 817"},
-  {biz:"Urban Plumbing and Gas Services", first:"Abdul", phone:"0404 424 142"},
-  {biz:"Plumbing Doctor Syd", first:"Ibbi", phone:"0424 961 994"},
-  {biz:"Last Minute Plumbing Solution", first:"Mick", phone:"0405 757 280"},
-  {biz:"Xstream Flow Plumbing", first:"", phone:"0450 642 324"},
-  {biz:"CV Plumbing and Gas PTY LTD", first:"Chuong", phone:"0411 766 448"},
-  {biz:"Murugan Plumbing Services & Handyman", first:"Murugan", phone:"0405 232 671"},
+  {biz:"Furry Fresh Mobile Dog Grooming", first:"Caroline", phone:"0403 132 969", niche:"Dog Grooming"},
+  {biz:"Lash Infinity Offical", first:"Lina", phone:"0451 609 696", niche:"Beauty Clinic"},
+  {biz:"Angel Signs", first:"Grant", phone:"0418 284 701", niche:"Car Signage"},
+  {biz:"So Sweet Studio", first:"Roua", phone:"0416 414 414", niche:"Photography"},
+  {biz:"Medicar Auto Care Mobile Service", first:"Phi", phone:"0431 649 898", niche:"Mechanic"},
+  {biz:"Austax Express Mobile Taxation & Accounting Services", first:"Andrew", phone:"0418 867 755", niche:"Accounting"},
+  {biz:"Luisa Makeup & Hair", first:"Luisa", phone:"0450 569 446", niche:"Beauty Clinic"},
+  {biz:"Pne Electrical Services", first:"Phillip", phone:"0425 226 313", niche:"Electrical"},
+  {biz:"Wilsons Electrical", first:"", phone:"0401 173 117", niche:"Electrical"},
+  {biz:"iTek Electrical Services", first:"Nam", phone:"0400 291 969", niche:"Electrical"},
+  {biz:"ASP Electrical Services", first:"Prasad", phone:"0403 558 214", niche:"Electrical"},
+  {biz:"Bossley Spark Electrical", first:"", phone:"0417 419 140", niche:"Electrical"},
+  {biz:"Imperial Electrical Services", first:"Rad", phone:"0439 450 194", niche:"Electrical"},
+  {biz:"Four Aces Electricals PTY LTD", first:"Kien", phone:"0421 217 617", niche:"Electrical"},
+  {biz:"Genb Electrical Solutions", first:"", phone:"0481 153 444", niche:"Electrical"},
+  {biz:"Prodel Electrical Services PTY LTD", first:"Ode", phone:"0403 166 057", niche:"Electrical"},
+  {biz:"FTOZ Electrical", first:"Zareal", phone:"0412 891 897", niche:"Electrical"},
+  {biz:"THANElectrical", first:"Taisir", phone:"0405 285 050", niche:"Electrical"},
+  {biz:"Prime Electtrcal Serrvices", first:"Moey", phone:"0420 836 368", niche:"Electrical"},
+  {biz:"Powered Up Electrical Group", first:"", phone:"0422 926 960", niche:"Electrical"},
+  {biz:"SYM Electrical", first:"Sercan", phone:"0413 108 192", niche:"Electrical"},
+  {biz:"Electrocon Electrical Services", first:"Stephen", phone:"0421 867 054", niche:"Electrical"},
+  {biz:"Lights And All Electrical", first:"Ben", phone:"0457 111 006", niche:"Electrical"},
+  {biz:"AKZ Plumbing", first:"Abdul", phone:"0424 499 533", niche:"Plumbing"},
+  {biz:"Plumbing Worx Enterprise PTY LTD", first:"", phone:"0451 017 538", niche:"Plumbing"},
+  {biz:"Reidh's Plumbing Service", first:"Reidha", phone:"0431 243 177", niche:"Plumbing"},
+  {biz:"Mario Bros Plumbing", first:"Mario", phone:"0414 982 674", niche:"Plumbing"},
+  {biz:"Xclussive Plumbing Sydney", first:"David", phone:"0414 470 809", niche:"Plumbing"},
+  {biz:"Incom PLumbing & Civil", first:"Nathan", phone:"0425 396 817", niche:"Plumbing"},
+  {biz:"Urban Plumbing and Gas Services", first:"Abdul", phone:"0404 424 142", niche:"Plumbing"},
+  {biz:"Plumbing Doctor Syd", first:"Ibbi", phone:"0424 961 994", niche:"Plumbing"},
+  {biz:"Last Minute Plumbing Solution", first:"Mick", phone:"0405 757 280", niche:"Plumbing"},
+  {biz:"Xstream Flow Plumbing", first:"", phone:"0450 642 324", niche:"Plumbing"},
+  {biz:"CV Plumbing and Gas PTY LTD", first:"Chuong", phone:"0411 766 448", niche:"Plumbing"},
+  {biz:"Murugan Plumbing Services & Handyman", first:"Murugan", phone:"0405 232 671", niche:"Plumbing"},
+  {biz:"888 Maintenance Plumbing Services Pty Ltd", first:"Shiv", phone:"0410 938 337", niche:"Plumbing"},
+  {biz:"Blocked Drains Expert - Tim's Plumbing Solutions", first:"Tim", phone:"0402 420 988", niche:"Plumbing"},
+  {biz:"DC Plumbers", first:"Imran", phone:"0449 164 185", niche:"Plumbing"},
+  {biz:"NC Plumbing Group", first:"Nathan", phone:"0450 924 129", niche:"Plumbing"},
+  {biz:"Nova Plumbing Solutions", first:"", phone:"0413 923 922", niche:"Plumbing"},
+  {biz:"KRF Maintenance", first:"Kevin", phone:"0418 344 400", niche:"Plumbing"},
+  {biz:"Master Flow Plumbing", first:"", phone:"0406 555 755", niche:"Plumbing"},
+  {biz:"Sydney Local Plumber - Isaac Plumbing", first:"Isaac", phone:"0424 420 242", niche:"Plumbing"},
+  {biz:"DawnGuard Plumbing", first:"Lorenzo", phone:"0452 235 402", niche:"Plumbing"},
+  {biz:"Ozstar Plumbing", first:"", phone:"0449 991 871", niche:"Plumbing"},
+  {biz:"Infinit Plumbing", first:"", phone:"0411 600 919", niche:"Plumbing"},
+  {biz:"RSM Plumbing Services", first:"Rani", phone:"0426 937 234", niche:"Plumbing"},
+  {biz:"Hydro Stream Plumbing PTY LTD", first:"", phone:"0423 215 685", niche:"Plumbing"},
+  {biz:"K9 Cuts Dog Washing & Clipping", first:"Belinda", phone:"0400 272 287", niche:"Dog Grooming"},
+  {biz:"Jeffrey's Mobile Dog Washing & Grooming Cabramatta West", first:"Jeffrey", phone:"0405 444 890", niche:"Dog Grooming"},
+  {biz:"Alot'A'Luv Dog Grooming", first:"Rebecca", phone:"0404 121 515", niche:"Dog Grooming"},
+  {biz:"Fable of Floof's", first:"Trish", phone:"0481 120 251", niche:"Dog Grooming"},
+  {biz:"Aunty Shirls Pooch Palour", first:"Shirley", phone:"0449 255 527", niche:"Dog Grooming"},
+  {biz:"Dirty Dogs Mobile Hydrobathing", first:"Dale", phone:"0438 606 719", niche:"Dog Grooming"},
+  {biz:"The Fur Salon Dog Grooming by Fluff n Puff", first:"Hannah", phone:"0435 204 824", niche:"Dog Grooming"},
+  {biz:"Narellan Dog Grooming", first:"Leo", phone:"0413 242 118", niche:"Dog Grooming"},
+  {biz:"Poochies Grooming Salon", first:"Sandra", phone:"0498 278 404", niche:"Dog Grooming"},
+  {biz:"PTP Dog Grooming Salon", first:"Kelly", phone:"0435 463 399", niche:"Dog Grooming"},
+  {biz:"K9 dipNclip Grooming", first:"Ruby", phone:"0472 518 679", niche:"Dog Grooming"},
+  {biz:"Acare Pet Grooming Salon & Daycare", first:"Jasmine", phone:"0426 004 555", niche:"Dog Grooming"},
+  {biz:"Bowtique Mobile Salon", first:"Paula", phone:"0431 060 920", niche:"Dog Grooming"},
+  {biz:"Rogue Hounds Mobile Dog Grooming", first:"Laura", phone:"0402 613 488", niche:"Dog Grooming"},
+  {biz:"Barking Barber", first:"Natasha", phone:"0431 166 707", niche:"Dog Grooming"},
+  {biz:"The Shearing Shed Dog Grooming Salon", first:"Belinda", phone:"0411 937 719", niche:"Dog Grooming"},
+  {biz:"All Dogs Grooming Parlour", first:"Julie", phone:"0418 167 500", niche:"Dog Grooming"},
+  {biz:"D&C Pet Grooming Salon", first:"Pipin", phone:"0400 393 574", niche:"Dog Grooming"},
+  {biz:"Wag'n Tails @ Engadine Dog Grooming & Daycare", first:"", phone:"0409 717 320", niche:"Dog Grooming"},
 ];
 function mergeSeed(){
   const clean = p => (p||"").replace(/\D/g,"");
@@ -435,7 +491,7 @@ function mergeSeed(){
   SEED.forEach((sd,i)=>{
     if(have.has(clean(sd.phone))) return;
     state.leads.push({ id: Date.now()+i, biz:sd.biz, first:sd.first, phone:sd.phone,
-      niche:"Plumbing", suburb:"", reviews:"", notes:"", pkg:0, stage:"New lead", stageDate: today() });
+      niche:sd.niche || "Other", suburb:"", reviews:"", notes:"", pkg:0, stage:"New lead", stageDate: today() });
     added++;
   });
   if(added) save();
