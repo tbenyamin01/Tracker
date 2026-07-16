@@ -62,6 +62,10 @@
   .due{color:var(--red); font-weight:600; font-size:12px;}
   .ok{color:var(--dim); font-size:12px;}
   .del{background:transparent; border:none; color:var(--dim); padding:4px 8px; font-size:16px;}
+  .notebtn{background:transparent; border:1px solid var(--line); color:var(--dim); padding:5px 9px; font-size:13px; border-radius:6px;}
+  .notebtn.has{border-color:var(--amber-dk); color:var(--amber);}
+  .noterow td{background:var(--panel); padding:10px;}
+  .noterow textarea{width:100%; min-height:64px; resize:vertical; background:var(--panel2); border:1px solid var(--amber-dk); color:var(--text); border-radius:7px; padding:9px; font-size:13px; line-height:1.4;}
   .del:hover{color:var(--red);}
   .stage-pill{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px;}
   .copybtn{display:inline-block; text-decoration:none; background:var(--panel2); border:1px solid var(--amber-dk); color:var(--amber); padding:7px 12px; font-size:12px; white-space:nowrap;}
@@ -317,6 +321,10 @@ function setStage(id, stage){
   l.stage = stage; l.stageDate = today();
   save(); render();
 }
+const openNotes = new Set();
+function toggleNote(id){ openNotes.has(id) ? openNotes.delete(id) : openNotes.add(id); render(); }
+function setNote(id, v){ const l = state.leads.find(x=>x.id===id); if(l){ l.notes = v; save(); } }
+function noteBlur(id){ render(); }
 function setPkg(id, v){ const l = state.leads.find(x=>x.id===id); if(l){ l.pkg = Number(v); save(); render(); } }
 function delLead(id){
   const l = state.leads.find(x=>x.id===id);
@@ -378,8 +386,13 @@ function render(){
       </select></td>
       <td class="hide-m">${l.pkg?fmt$(l.pkg):"—"}</td>
       <td>${overdue?`<span class="due">Due ${na}</span>`:(na?`<span class="ok">${na}</span>`:`<span class="ok">—</span>`)}</td>
-      <td><button class="del" onclick="delLead(${l.id})" aria-label="Delete">×</button></td>`;
+      <td style="white-space:nowrap;"><button class="notebtn${l.notes?" has":""}" onclick="toggleNote(${l.id})" aria-label="Notes">🗒</button> <button class="del" onclick="delLead(${l.id})" aria-label="Delete">×</button></td>`;
     rows.appendChild(tr);
+    if(openNotes.has(l.id)){
+      const nr = document.createElement("tr"); nr.className = "noterow";
+      nr.innerHTML = `<td colspan="8"><textarea placeholder="Notes for ${esc(l.biz)}... (what they said, quote given, best time to call)" oninput="setNote(${l.id}, this.value)">${esc(l.notes||"")}</textarea></td>`;
+      rows.appendChild(nr);
+    }
   });
 
   document.getElementById("empty").style.display = state.leads.length ? "none" : "block";
